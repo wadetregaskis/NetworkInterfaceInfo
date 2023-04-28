@@ -444,3 +444,88 @@ extension NetworkInterface.Flags: CustomStringConvertible {
                 .joined(separator: ", ")
     }
 }
+
+extension NetworkAddress.AddressFamily: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .unspecified:
+            return "Unspecified"
+        case .unix:
+            return "Unix / Local"
+        case .inet:
+            return "IPv4"
+        case .implink:
+            return "IMP"
+        case .pup:
+            return "PUP"
+        case .chaos:
+            return "CHAOS"
+        case .ns:
+            return "Xerox NS"
+        case .iso:
+            return "ISO"
+        case .ecma:
+            return "ECMA"
+        case .datakit:
+            return "DataKit"
+        case .ccitt:
+            return "CCITT"
+        case .sna:
+            return "IBM SNA"
+        case .decnet:
+            return "DECnet"
+        case .dli:
+            return "DEC Direct Data Link"
+        case .lat:
+            return "LAT"
+        case .hylink:
+            return "NSC Hyperchannel"
+        case .appletalk:
+            return "AppleTalk"
+        case .route:
+            return "Internet Routing Protocol"
+        case .link:
+            return "Link layer"
+        case .xtp:
+            return "eXpress Transfer Protocol"
+        case .coip:
+            return "Connection-oriented IP / ST II"
+        case .cnt:
+            return "Computer Network Technology"
+        case .rtip:
+            return "RTIP"
+        case .ipx:
+            return "IPX"
+        case .sip:
+            return "SIP"
+        case .pip:
+            return "PIP"
+        case .ndrv:
+            return "NDRV"
+        case .isdn:
+            return "ISDN"
+        case .key:
+            return "Internet Key Management"
+        case .inet6:
+            return "IPv6"
+        case .natm:
+            return "Native ATM Access"
+        case .system:
+            return "System / Kernel Event Messaging"
+        case .netbios:
+            return "NetBIOS"
+        case .ppp:
+            return "PPP"
+        case .hdrcmplt:
+            return "HDRCMPLT"
+        case .ieee802_11:
+            return "IEEE 802.11"
+        case .utun:
+            return "UTUN"
+        case .vsock:
+            return "VM Sockets"
+        case .unsupported:
+            return "{Unsupported}"
+        }
+    }
+}
