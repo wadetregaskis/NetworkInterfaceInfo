@@ -17,7 +17,7 @@ let package = Package(
             targets: ["NetworkInterfaceInfo"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/wadetregaskis/FoundationExtensions.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/wadetregaskis/FoundationExtensions.git", .upToNextMajor(from: "2.0.0")),
     ],
     targets: [
         .target(

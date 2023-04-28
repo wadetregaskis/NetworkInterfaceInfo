@@ -359,7 +359,7 @@ extension NetworkAddress: CustomStringConvertible {
                                            deallocator: .none)
                                     : Data())
                     
-                    return "{\(family): \(dataForm.asHexString(spaceEvery: 4))"
+                    return "{\(family): \(dataForm.asHexString(uppercase: false, delimiterEvery: 4))"
                 }
             }
         }
