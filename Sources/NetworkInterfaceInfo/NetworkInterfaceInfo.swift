@@ -352,6 +352,35 @@ extension NetworkAddress: CustomStringConvertible {
                                     addr: buffer.baseAddress!.pointer(to: \.sin6_addr)!,
                                     maximumSize: Int(INET6_ADDRSTRLEN))
                     }
+                case sa_family_t(AF_LINK):
+                    precondition(rawAddress.count >= MemoryLayout<sockaddr_dl>.size)
+                    
+                    return rawBuffer.withMemoryRebound(to: sockaddr_dl.self) { buffer in
+                        let addr = buffer.baseAddress!
+                        let addressLength = Int(addr.pointee.sdl_alen)
+                        let nameLength = Int(addr.pointee.sdl_nlen)
+                        
+                        guard 0 < addressLength else {
+                            guard 0 < nameLength else {
+                                return ""
+                            }
+                            
+                            return addr.pointer(to: \.sdl_data)!.withMemoryRebound(to: UInt8.self, capacity: nameLength) {
+                                let name = UnsafeBufferPointer(start: $0, count: nameLength)
+                                
+                                return (String(bytes: name, encoding: .utf8)
+                                        ?? String(bytes: name, encoding: .ascii)
+                                        ?? "{invalid}")
+                            }
+                        }
+                        
+                        return addr.pointer(to: \.sdl_data)!.withMemoryRebound(to: UInt8.self, capacity: nameLength + addressLength) {
+                            let address = UnsafeBufferPointer(start: $0 + nameLength, count: addressLength)
+                            
+                            return Data(buffer: UnsafeBufferPointer(start: address.baseAddress,
+                                                                    count: addressLength)).asHexString(uppercase: false, delimiterEvery: 1, delimiter: ":")
+                        }
+                    }
                 default:
                     let dataForm = (2 <= rawBuffer.count
                                     ? Data(bytesNoCopy: UnsafeMutableRawPointer(mutating: rawBuffer.baseAddress! + 2),
