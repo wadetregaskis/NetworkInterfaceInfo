@@ -7,7 +7,7 @@ final class NetworkInterfaceInfoTests: XCTestCase {
         for interface in try NetworkInterface.all {
             print("""
                   \(interface.name):
-                      Address: \(interface.address.orNilString)
+                      Address: \(interface.address.orNilString) (\((interface.address?.family).orNilString))
                       Netmask: \(interface.netmask.orNilString)
                       Broadcast: \(interface.broadcastAddress.orNilString)
                       Destination: \(interface.destinationAddress.orNilString)
