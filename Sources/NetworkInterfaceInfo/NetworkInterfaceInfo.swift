@@ -283,6 +283,114 @@ public struct NetworkAddress {
     public var isIPv6: Bool {
         .inet6 == family
     }
+
+    /// Indicates whether this (IPv4) address is the loopback address (127.0.0.1)
+    public var isLoopback: Bool {
+        IPv4Addr == INADDR_LOOPBACK
+    }
+
+    /// Indicates whether this (IPv4) netmask is a class A network (255.0.0.0)
+    public var isClassANet: Bool {
+        IPv4Addr == IN_CLASSA_NET
+    }
+
+    /// Indicates whether this (IPv4) address is in a class A network
+    public var inClassANet: Bool {
+        (IPv4Addr & 0x80000000) == 0
+    }
+
+    /// Indicates whether this (IPv4) netmask is a class B network (255.255.0.0)
+    public var isClassBNet: Bool {
+        IPv4Addr == IN_CLASSB_NET
+    }
+
+    /// Indicates whether this (IPv4) address is in a class B network
+    public var inClassBNet: Bool {
+        (IPv4Addr & 0xC0000000) == 0x80000000
+    }
+
+    /// Indicates whether this (IPv4) netmask is a class C network (255.255.255.0)
+    public var isClassCNet: Bool {
+        IPv4Addr == IN_CLASSC_NET
+    }
+
+    /// Indicates whether this (IPv4) address is in a class C network
+    public var inClassCNet: Bool {
+        (IPv4Addr & 0xE0000000) == 0xC0000000
+    }
+
+    /// Indicates whether this (IPv4) netmask is a class D network (multicast)
+    public var isClassDNet: Bool {
+        IPv4Addr == IN_CLASSD_NET
+    }
+
+    /// Indicates whether this (IPv4) address is in a class D network (multicast)
+    public var inClassDNet: Bool {
+        (IPv4Addr & 0xF0000000) == 0xE0000000
+    }
+
+    /// Indicates whether this (IPv4) address is in a link local network (169.254.x.x)
+    public var inLinkLocalNet: Bool {
+        return (IPv4Addr & IN_CLASSB_NET) == IN_LINKLOCALNETNUM
+    }
+
+    /// Indicates whether this (IPv4) address is in a loopback network (127.x.x.x)
+    public var inLoopbackNet: Bool {
+        (IPv4Addr & IN_CLASSA_NET) == 0x7f000000
+    }
+
+    /// Indicates whether this (IPv4) address is in a private network (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+    public var InPrivateNet: Bool {
+        let addr = IPv4Addr
+        return (addr & IN_CLASSA_NET) == 0x0a000000 // 10.0.0.0/8
+            || (addr & 0xfff00000) == 0xac100000    // 172.16.0.0/12
+            || (addr & IN_CLASSB_NET) == 0xac100000 // 192.168.0.0/16
+    }
+
+    /// Indicates whether this (IPv4) address is the unspecified broadcast group (224.0.0.0)
+    public var isInAddrUnspecGroup: Bool {
+        IPv4Addr == INADDR_UNSPEC_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is the all hosts multicast group address (224.0.0.1)
+    public var isInAddrAllHostsGroup: Bool {
+        IPv4Addr == INADDR_ALLHOSTS_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is the all routers multicast group (224.0.0.2)
+    public var isInAddrAllRtrsGroup: Bool {
+        IPv4Addr == INADDR_ALLRTRS_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is the IGMPv3 multicast group (224.0.0.22)
+    public var isInAddrAllRptsGroup: Bool {
+        IPv4Addr == INADDR_ALLRPTS_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is the IGMPv3 multicast group (224.0.0.18)
+    public var isInAddrCarpGroup: Bool {
+        IPv4Addr == INADDR_CARP_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is the PfSync multicast group (224.0.0.240)
+    public var isInAddrPfSyncGroup: Bool {
+        IPv4Addr == INADDR_PFSYNC_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is the multicast DNS (mDNS) multicast group (224.0.0.251)
+    public var isInAddrAllmDNSGroup: Bool {
+        IPv4Addr == INADDR_ALLMDNS_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is in a multicast network (224.x.x.x)
+    public var inMulticastNet: Bool {
+        (IPv4Addr & IN_CLASSD_NET) == INADDR_UNSPEC_GROUP
+    }
+
+    /// Indicates whether this (IPv4) address is in a local multicast group (224.0.0.x)
+    public var InLocalGroup: Bool {
+       (IPv4Addr & IN_CLASSC_NET) == INADDR_UNSPEC_GROUP
+    }
     
     fileprivate var IPv4Address: in_addr_t? {
         guard isIPv4 else { return nil }
@@ -292,6 +400,12 @@ public struct NetworkAddress {
                 $0.baseAddress!.pointer(to: \.sin_addr)!.pointee.s_addr
             }
         }
+    }
+
+    // Returns in_addr_t as a (host) UInt32, or INADDR_NONE
+    private var IPv4Addr: UInt32 {
+        guard let addr = IPv4Address else { return INADDR_NONE; }
+        return CFSwapInt32BigToHost(addr)
     }
 }
 
