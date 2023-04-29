@@ -9,7 +9,7 @@ Basically a Swift abstraction over `getifaddrs`; a way to enumerate all the netw
 
 This is intentionally very lightweight, and designed to be very efficient even for cases where you're looking for a small subset of interfaces.  e.g. to find all active IPv4 addresses (excluding loopback networks):
 
-```
+```swift
 import NetworkInterfaceInfo
 
 try NetworkInterface.all
