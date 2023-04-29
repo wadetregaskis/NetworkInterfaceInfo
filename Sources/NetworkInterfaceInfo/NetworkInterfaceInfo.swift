@@ -71,7 +71,24 @@ public struct NetworkInterface {
         
         return NetworkAddress(addr: addr)
     }
-   
+
+    /// Returns the address family used on this interface.
+    ///
+    /// This may be nil in two scenarios:
+    ///  1. There are no addresses of any kind on this interface, so the address family is undefined.
+    ///  2. Addresses disagree on what family they belong to (e.g. ``address`` is IPv4 yet ``netmask`` is IPv6).
+    ///
+    /// Both situations are theoretically impossible but technically could occur if there's a bug somewhere (whether in this package, the OS libraries, or the OS kernel).  You can force-unwrap the optional result if you really want, but consider if you can just gloss over it if it's nil, rather than crashing.
+    public var addressFamily: NetworkAddress.AddressFamily? {
+        let families = Set([address?.family, netmask?.family, destinationAddress?.family, broadcastAddress?.family])
+
+        guard let family = families.first, 1 == families.count else {
+            return nil
+        }
+
+        return family
+    }
+
     /// Flags for the interface, as an `OptionSet`.  You can also use the boolean convenience properties, e.g. ``up``, ``loopback``, etc, if you prefer.
     public var flags: Flags {
         Flags(rawValue: ifaddr.ifa_flags)
