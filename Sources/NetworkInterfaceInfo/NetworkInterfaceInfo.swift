@@ -348,6 +348,8 @@ public struct NetworkAddress {
     }
 }
 
+extension NetworkAddress: Equatable, Hashable {}
+
 extension NetworkAddress: CustomStringConvertible {
     private func ntop(family: sa_family_t, addr: UnsafeRawPointer, maximumSize: Int) -> String {
         return String(unsafeUninitializedCapacity: maximumSize) { buffer in
