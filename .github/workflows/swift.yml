@@ -17,6 +17,6 @@ jobs:
     - uses: swift-actions/setup-swift@v1
     - uses: actions/checkout@v3
     - name: Build
-      run: swift build -v
+      run: swift build
     - name: Run tests
-      run: swift test -v
+      run: swift test
