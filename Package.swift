@@ -2,6 +2,16 @@
 
 import PackageDescription
 
+let swiftSettings: [SwiftSetting] = [
+   .enableUpcomingFeature("BareSlashRegexLiterals"),
+   .enableUpcomingFeature("ConciseMagicFile"),
+   .enableUpcomingFeature("ExistentialAny"),
+   .enableUpcomingFeature("ForwardTrailingClosures"),
+   .enableUpcomingFeature("ImplicitOpenExistentials"),
+   .enableUpcomingFeature("StrictConcurrency"),
+   .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete", "-enable-actor-data-race-checks"]),
+]
+
 let package = Package(
     name: "NetworkInterfaceInfo",
     platforms: [
@@ -22,9 +32,11 @@ let package = Package(
     targets: [
         .target(
             name: "NetworkInterfaceInfo",
-            dependencies: [.product(name: "FoundationExtensions", package: "FoundationExtensions")]),
+            dependencies: [.product(name: "FoundationExtensions", package: "FoundationExtensions")],
+            swiftSettings: swiftSettings),
         .testTarget(
             name: "NetworkInterfaceInfoTests",
-            dependencies: ["NetworkInterfaceInfo"]),
+            dependencies: ["NetworkInterfaceInfo"],
+            swiftSettings: swiftSettings),
     ]
 )
