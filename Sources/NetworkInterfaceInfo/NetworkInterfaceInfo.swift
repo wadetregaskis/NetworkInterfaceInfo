@@ -197,6 +197,16 @@ public struct NetworkInterface {
     }
 }
 
+extension NetworkInterface: Equatable {
+    public static func == (lhs: NetworkInterface, rhs: NetworkInterface) -> Bool {
+        (lhs.address == rhs.address
+         && lhs.netmask == rhs.netmask
+         && lhs.broadcastAddress == rhs.broadcastAddress
+         && lhs.destinationAddress == rhs.destinationAddress
+         && lhs.flags == rhs.flags)
+    }
+}
+
 extension NetworkInterface: CustomStringConvertible {
     public var description: String {
         let address = address
