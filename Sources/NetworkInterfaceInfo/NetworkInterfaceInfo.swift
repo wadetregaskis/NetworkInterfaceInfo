@@ -346,6 +346,14 @@ public struct NetworkAddress {
             }
         }
     }
+
+    /// Only for initialising the special ``null``  constant.
+    private init() {
+        rawAddress = []
+    }
+
+    /// For internal use only.  A special 'null' placeholder for times where nullability is intrinsic but Optionals aren't permitted (e.g. dictionary keys, as in the change monitoring implementation).
+    internal static let null = NetworkAddress()
 }
 
 extension NetworkAddress: Equatable, Hashable {}

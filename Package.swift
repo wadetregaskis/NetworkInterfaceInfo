@@ -25,6 +25,9 @@ let package = Package(
         .library(
             name: "NetworkInterfaceInfo",
             targets: ["NetworkInterfaceInfo"]),
+        .library(
+            name: "NetworkInterfaceChangeMonitoring",
+            targets: ["NetworkInterfaceChangeMonitoring"]),
     ],
     dependencies: [
         .package(url: "https://github.com/wadetregaskis/FoundationExtensions.git", .upToNextMajor(from: "2.0.0")),
@@ -38,5 +41,15 @@ let package = Package(
             name: "NetworkInterfaceInfoTests",
             dependencies: ["NetworkInterfaceInfo"],
             swiftSettings: swiftSettings),
+
+        .target(
+            name: "NetworkInterfaceChangeMonitoring",
+            dependencies: ["NetworkInterfaceInfo",
+                           .product(name: "FoundationExtensions", package: "FoundationExtensions")],
+            swiftSettings: swiftSettings),
+        .testTarget(
+            name: "NetworkInterfaceChangeMonitoringTests",
+            dependencies: ["NetworkInterfaceChangeMonitoring"],
+            swiftSettings: swiftSettings)
     ]
 )
