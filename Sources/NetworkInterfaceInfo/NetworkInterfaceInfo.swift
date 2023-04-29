@@ -197,6 +197,22 @@ public struct NetworkInterface {
     }
 }
 
+extension NetworkInterface: CustomStringConvertible {
+    public var description: String {
+        let address = address
+        let netmask = netmask
+        let broadcastAddress = broadcastAddress
+        let destinationAddress = destinationAddress
+
+        return ("Network interface(name: \(name)"
+                + (nil != address ? ", address: \(address!)" : "")
+                + (nil != netmask ? ", netmask: \(netmask!)" : "")
+                + (nil != broadcastAddress ? ", broadcast address: \(broadcastAddress!)" : "")
+                + (nil != destinationAddress ? ", broadcast address: \(destinationAddress!)" : "")
+                + ", flags: [\(flags)])")
+    }
+}
+
 /// A network address - e.g. 127.0.0.1 as an example IPv4 address, or 2601:647:4d01:93c4:813:a728:b5b3:1d32 as an example IPv6 address.
 ///
 /// This structure is pretty lightweight - the address data is stored in an efficient binary form - and standalone (so you can keep copies of these addresses around as along as you like, without incurring any additional memory cost, unlike for ``NetworkInterface``).
