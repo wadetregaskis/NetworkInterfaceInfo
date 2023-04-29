@@ -1,7 +1,7 @@
 # NetworkInterfaceInfo
 
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/wadetregaskis/NetworkInterfaceInfo.svg)
-![GitHub build results](https://github.com/wadetregaskis/NetworkInterfaceInfo/actions/workflows/swift.yml/badge.svg)
+[![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/wadetregaskis/NetworkInterfaceInfo.svg)]()
+[![GitHub build results](https://github.com/wadetregaskis/NetworkInterfaceInfo/actions/workflows/swift.yml/badge.svg)](https://github.com/wadetregaskis/NetworkInterfaceInfo/actions/workflows/swift.yml)
 
 Basically a Swift abstraction over `getifaddrs`; a way to enumerate all the network interfaces on the current host, with their core information such as associated addresses & netmasks.
 
