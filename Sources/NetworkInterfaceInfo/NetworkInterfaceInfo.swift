@@ -470,10 +470,10 @@ extension NetworkInterface.Flags: CustomStringConvertible {
                                                (.supportsMulticast, "Supports multicast")]) { $1 }
     
     public var description: String {
-        let knownFlagBits = NetworkInterface.Flags.allCases.filter { self.contains($0) }
+        let knownFlagBits = Self.allCases.filter { self.contains($0) }
         
-        return (Set(knownFlagBits.map { NetworkInterface.Flags.names[$0] ?? "Unknown" }).sorted()
-                + self.subtracting(NetworkInterface.Flags(knownFlagBits)).rawValue.bits.map { "0x" + String($0, radix: 16) })
+        return (Set(knownFlagBits.map { Self.names[$0] ?? "Unknown" }).sorted()
+                + self.subtracting(Self(knownFlagBits)).rawValue.bits.map { "0x" + String($0, radix: 16) })
                 .joined(separator: ", ")
     }
 }
