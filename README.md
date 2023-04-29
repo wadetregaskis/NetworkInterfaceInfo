@@ -18,3 +18,29 @@ try NetworkInterface.all
     .compactMap(\.address)      // That have addresses and…
     .filter(\.isIPv4)           // Use IPv4.
 ```
+
+There is also a second module which allows you to monitor for changes to network interfaces, e.g.:
+
+```swift
+import NetworkInterfaceInfo
+import NetworkInterfaceChangeMonitoring
+
+for try await change in NetworkInterface.changes {
+    switch change.nature {
+    case .added:
+        print("New network interface: \(change.interface)")
+    case .modified(let modificationNature):
+        if modificationNature.contains(.address) {
+            print("Address changed to \(change.interface.address).")
+        }
+    case .removed:
+        // etc
+    }
+}
+```
+
+Note that you still need to explicitly `import NetworkInterfaceInfo` in order to access the `change` property and otherwise use `NetworkInterface` et al.
+
+This monitoring functionality is in a separate module so that you don't pay the cost of it if you don't need it.
+
+Important:  monitoring for network interface changes relies on Apple's Network framework, specifically NWPathMonitor.  Generally that notices changes virtually immediately, but sometimes it is delayed - up to minute(s) later.  This might be worked around in a future version of this library, but for now at least be aware of that annoying uncertainty and consider taking steps to work around it (e.g. polling `NetworkInterface.all` instead, if you need a clear latency upper bound).
