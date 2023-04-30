@@ -192,7 +192,7 @@ fileprivate extension NetworkInterface {
 }
 
 extension NetworkInterface.Change.ModificationNature: CaseIterable {
-    public static var allCases: [Self] = [.address,
+    public static let allCases: [Self] = [.address,
                                           .netmask,
                                           .broadcastAddress,
                                           .destinationAddress,

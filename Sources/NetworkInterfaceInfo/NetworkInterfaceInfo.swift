@@ -459,7 +459,7 @@ extension NetworkAddress: CustomStringConvertible {
 }
 
 extension NetworkInterface.Flags: CaseIterable {
-    public static var allCases: [Self] = [.up,
+    public static let allCases: [Self] = [.up,
                                           .broadcastAvailable,
                                           .debug,
                                           .loopback,
