@@ -1,4 +1,5 @@
 import Dispatch
+import FoundationExtensions
 @preconcurrency import Network
 import NetworkInterfaceInfo
 
@@ -75,28 +76,26 @@ public extension NetworkInterface {
                     var goneOrChangedInterfaces = lastInterfaces.subtracting(currentInterfaces)
 
                     for interface in newOrChangedInterfaces {
-                        let potentials = goneOrChangedInterfaces.compactMap { other -> (Int, NetworkInterface)? in
-                            guard let score = interface.similarityScore(versus: other) else {
-                                return nil
+                        //print("Candidate origins of \(interface):")
+
+                        let bestMatch = goneOrChangedInterfaces.reduce(nil) { bestSoFar, candidate -> (Int, NetworkInterface)? in
+                            let candidateScore = interface.similarityScore(versus: candidate)
+
+                            //print("\tScore \(candidateScore.orNilString) for \(candidate)")
+
+                            guard let candidateScore else {
+                                return bestSoFar
+
                             }
 
-                            return (score, other)
-                        }
-
-//                        print("Candidate origins of \(interface):")
-//                        dump(potentials)
-
-                        if let bestMatch = potentials.reduce(nil, { candidate, other -> (Int, NetworkInterface)? in
-                            guard let candidate else {
-                                return other
+                            guard let bestSoFar, bestSoFar.0 >= candidateScore else {
+                                return (candidateScore, candidate)
                             }
 
-                            if candidate.0 > other.0 {
-                                return candidate
-                            } else {
-                                return other
-                            }
-                        })?.1 {
+                            return bestSoFar
+                        }?.1
+
+                        if let bestMatch {
                             continuation.yield(Change(nature: .modified(interface.changes(versus: bestMatch)),
                                                       interface: interface))
 
