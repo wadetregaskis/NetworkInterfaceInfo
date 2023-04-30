@@ -19,7 +19,7 @@ final class NetworkInterfaceChangeMonitoringTests: XCTestCase {
                 func markIf(_ field: NetworkInterface.Change.ModificationNature) -> String {
                     changedFields.contains(field) ? "🔔" : "  "
                 }
-                
+
                 print("""
                       \(change.interface.name) \(change.nature):
                        \(markIf(.address)) Address: \(change.interface.address.orNilString) (\((change.interface.address?.family).orNilString))
