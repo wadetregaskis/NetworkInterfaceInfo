@@ -16,13 +16,17 @@ final class NetworkInterfaceChangeMonitoringTests: XCTestCase {
                     changedFields = []
                 }
 
+                func markIf(_ field: NetworkInterface.Change.ModificationNature) -> String {
+                    changedFields.contains(field) ? "🔔" : "  "
+                }
+                
                 print("""
                       \(change.interface.name) \(change.nature):
-                       \(changedFields.contains(.address) ? "🔔" : "  ") Address: \(change.interface.address.orNilString) (\((change.interface.address?.family).orNilString))
-                       \(changedFields.contains(.netmask) ? "🔔" : "  ") Netmask: \(change.interface.netmask.orNilString)
-                       \(changedFields.contains(.broadcastAddress) ? "🔔" : "  ") Broadcast: \(change.interface.broadcastAddress.orNilString)
-                       \(changedFields.contains(.destinationAddress) ? "🔔" : "  ") Destination: \(change.interface.destinationAddress.orNilString)
-                       \(changedFields.contains(.flags) ? "🔔" : "  ") Flags: \(change.interface.flags)
+                       \(markIf(.address)) Address: \(change.interface.address.orNilString) (\((change.interface.address?.family).orNilString))
+                       \(markIf(.netmask)) Netmask: \(change.interface.netmask.orNilString)
+                       \(markIf(.broadcastAddress)) Broadcast: \(change.interface.broadcastAddress.orNilString)
+                       \(markIf(.destinationAddress)) Destination: \(change.interface.destinationAddress.orNilString)
+                       \(markIf(.flags)) Flags: \(change.interface.flags)
                       """)
             }
         }
