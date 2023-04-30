@@ -51,7 +51,7 @@ public extension NetworkInterface {
     ///
     /// Note that some modifications may be reported as first a removal and then an addition.  This reflects how the underlying system actually manages these interfaces, sometimes, even for seemingly trivial modifications like changing the IP address on an interface.
     ///
-    /// Note that there is no upper bound on when changes are reported via this stream.  It relies on the ``Network//NWPathMonitor`` functionality from Apple, and while sometimes Apple's library provides notification of changes virtually immediately, at other times it can take minute(s).
+    /// Note that there is no upper bound on when changes are reported via this stream.  It relies on the ``Network/NWPathMonitor`` functionality from Apple, and while sometimes Apple's library provides notification of changes virtually immediately, at other times it can take minute(s).
     static var changes: AsyncThrowingStream<Change, Error> {
         AsyncThrowingStream { continuation -> Void in
             var lastInterfaces: Set<NetworkInterface>
