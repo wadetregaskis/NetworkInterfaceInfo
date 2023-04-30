@@ -1,4 +1,4 @@
-import Dispatch
+@preconcurrency import Dispatch
 import FoundationExtensions
 @preconcurrency import Network
 import NetworkInterfaceInfo
@@ -45,14 +45,21 @@ public extension NetworkInterface {
 
     /// Reports changes to ``NetworkInterfaceInfo/NetworkInterface/all``.
     ///
-    /// The returned stream is endless - awaiting its next value will block (as needed) until the next change occurs.
-    ///
     /// Changes are reported as a simple structure - ``Change`` - that provides an indication not only of what ``NetworkInterface`` changed by in what manner; whether it is newly added, just removed, or modified (with indications of which fields were modified).
     ///
     /// Note that some modifications may be reported as first a removal and then an addition.  This reflects how the underlying system actually manages these interfaces, sometimes, even for seemingly trivial modifications like changing the IP address on an interface.
     ///
-    /// Note that there is no upper bound on when changes are reported via this stream.  It relies on the ``Network/NWPathMonitor`` functionality from Apple, and while sometimes Apple's library provides notification of changes virtually immediately, at other times it can take minute(s).
-    static var changes: AsyncThrowingStream<Change, Error> {
+    /// Note that there may be a delay between the actual changes occuring and them being reported (even if `coalescingPeriod` is 0).  This function relies on the ``Network/NWPathMonitor`` functionality from Apple, and while typically Apple's library provides notification of changes immediately, at other times it takes longer.  There is no defined upper bound on this latency, and delays on the order of minutes have been observed in practice.
+    ///
+    /// - Parameters:
+    ///   - coalescingPeriod: How long to wait, after detecting a change, before actually reporting it.  A negative or zero value means no wait.
+    ///
+    ///     Having a coalescing period allows multiple changes to be coalesced into one, which may improve the semantic accuracy of the reported changes (particularly regarding recognising modifications properly, as opposed to a removal followed by an addition).  The downsides are that it delays change reports, and it may cause some changes to be missed entirely (e.g. addition followed by removal).
+    ///
+    ///     The ideal value is use-case specific.  If you don't care whether you see changes as single modifications vs pairs of adds and removes, a value of zero (the default) is the best.  Otherwise, a single second is helpful but typically not sufficient to coalesce all modifications.  Several seconds is usually sufficient, but there can still be exceptions.  Consider what the delay means for your use-case - e.g. if it takes a while to switch wifi networks, during which time the internet is not accessible, are you satisfied with eventually just receiving notification of a change in wifi settings or do you want to know more immediately that access via wifi has been [temporarily] lost?
+    ///
+    /// - Returns: An endless stream of change events.  Awaiting its next value will block (as needed) until the next change occurs.
+    static func changes(coalescingPeriod: Int = 0) -> AsyncThrowingStream<Change, Error> {
         AsyncThrowingStream { continuation -> Void in
             var lastInterfaces: Set<NetworkInterface>
 
@@ -67,9 +74,19 @@ public extension NetworkInterface {
                 continuation.yield(Change(nature: .added, interface: interface))
             }
 
+            let queue = DispatchQueue(label: "NetworkInterface.changes")
             let monitor = NWPathMonitor()
 
-            monitor.pathUpdateHandler = { _ in
+            // Use of queue-specific storage is a bit of a hacky workaround to the Swift compiler not being able to correctly reason about shared state and dispatch queues.
+            //
+            // It's basically just hiding [from the compiler] the pointer to the live 'enqueued handler' task, rather than storing it a local variable.
+            //
+            // Possibly there'll be a way, in future, to drop Dispatch and use "pure" Swift (i.e. tasks, actors, etc), which will presumably not have issues with incorrect deductions by the compiler, but I couldn't find any sane way to implement this simple pattern with Task and/or actors in Swift 5.8.
+            let enqueuedHandlerKey = DispatchSpecificKey<DispatchWorkItem>()
+
+            let reportAnyChanges = {
+                //print("Reporting changes (if any)…")
+
                 let currentInterfaces: Set<NetworkInterface>
 
                 do {
@@ -119,11 +136,41 @@ public extension NetworkInterface {
                 lastInterfaces = currentInterfaces
             }
 
-            continuation.onTermination = { @Sendable _ in
-                monitor.cancel()
+            monitor.pathUpdateHandler = { _ in
+                //print("NWPathMonitor reported a change.")
+
+                if 0 >= coalescingPeriod {
+                    reportAnyChanges()
+                } else {
+                    guard nil == queue.getSpecific(key: enqueuedHandlerKey) else {
+                        //print("Change reporting already scheduled.")
+                        return
+                    }
+
+                    //print("Scheduling change report for \(coalescingPeriod) seconds from now.")
+
+                    let task = DispatchWorkItem() {
+                        reportAnyChanges()
+                        queue.setSpecific(key: enqueuedHandlerKey, value: nil)
+                    }
+
+                    queue.setSpecific(key: enqueuedHandlerKey, value: task)
+                    queue.asyncAfter(deadline: .now().advanced(by: .seconds(coalescingPeriod)),
+                                     execute: task)
+                }
             }
 
-            monitor.start(queue: DispatchQueue(label: "NetworkInterface.changes"))
+            continuation.onTermination = { @Sendable _ in
+                monitor.cancel()
+
+                queue.sync {
+                    if let enqueuedHandlerTask = queue.getSpecific(key: enqueuedHandlerKey) {
+                        enqueuedHandlerTask.cancel()
+                    }
+                }
+            }
+
+            monitor.start(queue: queue)
         }
     }
 }

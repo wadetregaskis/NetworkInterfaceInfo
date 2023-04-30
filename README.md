@@ -25,7 +25,7 @@ There is also a second module which allows you to monitor for changes to network
 import NetworkInterfaceInfo
 import NetworkInterfaceChangeMonitoring
 
-for try await change in NetworkInterface.changes {
+for try await change in NetworkInterface.changes() {
     switch change.nature {
     case .added:
         print("New network interface: \(change.interface)")

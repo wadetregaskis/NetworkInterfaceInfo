@@ -6,7 +6,7 @@ import NetworkInterfaceInfo
 final class NetworkInterfaceChangeMonitoringTests: XCTestCase {
     func testInProduction🤪() async throws {
         let task = Task {
-            for try await change in NetworkInterface.changes {
+            for try await change in NetworkInterface.changes(coalescingPeriod: 5) {
                 let changedFields: NetworkInterface.Change.ModificationNature
 
                 switch change.nature {
