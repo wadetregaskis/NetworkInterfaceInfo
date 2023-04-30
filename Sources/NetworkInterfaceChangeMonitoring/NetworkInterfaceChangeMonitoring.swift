@@ -70,49 +70,53 @@ public extension NetworkInterface {
             let monitor = NWPathMonitor()
 
             monitor.pathUpdateHandler = { _ in
+                let currentInterfaces: Set<NetworkInterface>
+
                 do {
-                    let currentInterfaces = Set(try NetworkInterface.all)
-                    let newOrChangedInterfaces = currentInterfaces.subtracting(lastInterfaces)
-                    var goneOrChangedInterfaces = lastInterfaces.subtracting(currentInterfaces)
-
-                    for interface in newOrChangedInterfaces {
-                        //print("Candidate origins of \(interface):")
-
-                        let bestMatch = goneOrChangedInterfaces.reduce(nil) { bestSoFar, candidate -> (Int, NetworkInterface)? in
-                            let candidateScore = interface.similarityScore(versus: candidate)
-
-                            //print("\tScore \(candidateScore.orNilString) for \(candidate)")
-
-                            guard let candidateScore else {
-                                return bestSoFar
-
-                            }
-
-                            guard let bestSoFar, bestSoFar.0 >= candidateScore else {
-                                return (candidateScore, candidate)
-                            }
-
-                            return bestSoFar
-                        }?.1
-
-                        if let bestMatch {
-                            continuation.yield(Change(nature: .modified(interface.changes(versus: bestMatch)),
-                                                      interface: interface))
-
-                            goneOrChangedInterfaces.remove(bestMatch)
-                        } else {
-                            continuation.yield(Change(nature: .added, interface: interface))
-                        }
-                    }
-
-                    for interface in goneOrChangedInterfaces {
-                        continuation.yield(Change(nature: .removed, interface: interface))
-                    }
-
-                    lastInterfaces = currentInterfaces
+                    currentInterfaces = Set(try NetworkInterface.all)
                 } catch {
                     continuation.finish(throwing: error)
+                    return
                 }
+
+                let newOrChangedInterfaces = currentInterfaces.subtracting(lastInterfaces)
+                var goneOrChangedInterfaces = lastInterfaces.subtracting(currentInterfaces)
+
+                for interface in newOrChangedInterfaces {
+                    //print("Candidate origins of \(interface):")
+
+                    let bestMatch = goneOrChangedInterfaces.reduce(nil) { bestSoFar, candidate -> (Int, NetworkInterface)? in
+                        let candidateScore = interface.similarityScore(versus: candidate)
+
+                        //print("\tScore \(candidateScore.orNilString) for \(candidate)")
+
+                        guard let candidateScore else {
+                            return bestSoFar
+
+                        }
+
+                        guard let bestSoFar, bestSoFar.0 >= candidateScore else {
+                            return (candidateScore, candidate)
+                        }
+
+                        return bestSoFar
+                    }?.1
+
+                    if let bestMatch {
+                        continuation.yield(Change(nature: .modified(interface.changes(versus: bestMatch)),
+                                                  interface: interface))
+
+                        goneOrChangedInterfaces.remove(bestMatch)
+                    } else {
+                        continuation.yield(Change(nature: .added, interface: interface))
+                    }
+                }
+
+                for interface in goneOrChangedInterfaces {
+                    continuation.yield(Change(nature: .removed, interface: interface))
+                }
+
+                lastInterfaces = currentInterfaces
             }
 
             continuation.onTermination = { @Sendable _ in
