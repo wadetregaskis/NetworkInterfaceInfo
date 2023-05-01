@@ -50,3 +50,5 @@ _Note_: you still need to explicitly `import NetworkInterfaceInfo` in order to a
 This monitoring functionality is in a separate module so that you don't pay the cost of it if you don't need it.
 
 **Important**:  monitoring for network interface changes relies on Apple's `NWPathMonitor` class.  Generally that notices changes virtually immediately, but sometimes it is delayed - up to minute(s) later.  This might be worked around in a future version of this library, but for now at least be aware of that annoying uncertainty and consider taking steps to work around it (e.g. polling `NetworkInterface.all` instead, if you need a clear latency upper bound).
+
+_Note_: due to a bug or design flaw in Apple's DocC, this second module isn't visible in the HTML version of the documentation.  Refer to the source code files directly.
