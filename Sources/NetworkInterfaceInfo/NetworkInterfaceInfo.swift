@@ -75,7 +75,7 @@ public struct NetworkInterface {
             }
         }
 #else
-        guard let addr = ifaddr.ifa_ifu.ifu_broadaddr else {
+        guard let addr = ifaddr.pointee.ifa_ifu.ifu_broadaddr else {
             return nil
         }
 
@@ -92,7 +92,9 @@ public struct NetworkInterface {
             return nil
         }
 #else
-        let addr = ifaddr.ifa_ifu.ifu_dstaddr
+        guard let addr = ifaddr.pointee.ifa_ifu.ifu_dstaddr else {
+            return nil
+        }
 #endif
 
         return NetworkAddress(addr: addr)
