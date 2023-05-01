@@ -61,8 +61,8 @@ public struct NetworkInterface {
             return NetworkAddress(addr: addr)
         } else {
             // Workaround for getifaddrs bug whereby it never specifies broadcast addresses.  https://blog.wadetregaskis.com/getifaddrs-never-specifies-broadcast-addresses
-            guard let addr = address?.IPv4Address,
-                  let mask = netmask?.IPv4Address else { return nil }
+            guard let addr = address?.IPv4?.address,
+                  let mask = netmask?.IPv4?.address else { return nil }
             
             let broadcastAddr = sockaddr_in(sin_len: UInt8(MemoryLayout<sockaddr_in>.size),
                                             sin_family: sa_family_t(AF_INET),
@@ -462,130 +462,6 @@ public struct NetworkAddress {
         .inet6 == family
     }
 
-    /// Indicates whether this (IPv4) address is the loopback address (127.0.0.1)
-    public var isLoopback: Bool {
-        IPv4Addr == INADDR_LOOPBACK
-    }
-
-    /// Indicates whether this (IPv4) netmask is a class A network (255.0.0.0)
-    public var isClassANet: Bool {
-        IPv4Addr == IN_CLASSA_NET
-    }
-
-    /// Indicates whether this (IPv4) address is in a class A network
-    public var inClassANet: Bool {
-        (IPv4Addr & 0x80000000) == 0
-    }
-
-    /// Indicates whether this (IPv4) netmask is a class B network (255.255.0.0)
-    public var isClassBNet: Bool {
-        IPv4Addr == IN_CLASSB_NET
-    }
-
-    /// Indicates whether this (IPv4) address is in a class B network
-    public var inClassBNet: Bool {
-        (IPv4Addr & 0xC0000000) == 0x80000000
-    }
-
-    /// Indicates whether this (IPv4) netmask is a class C network (255.255.255.0)
-    public var isClassCNet: Bool {
-        IPv4Addr == IN_CLASSC_NET
-    }
-
-    /// Indicates whether this (IPv4) address is in a class C network
-    public var inClassCNet: Bool {
-        (IPv4Addr & 0xE0000000) == 0xC0000000
-    }
-
-    /// Indicates whether this (IPv4) netmask is a class D network (multicast)
-    public var isClassDNet: Bool {
-        IPv4Addr == IN_CLASSD_NET
-    }
-
-    /// Indicates whether this (IPv4) address is in a class D network (multicast)
-    public var inClassDNet: Bool {
-        (IPv4Addr & 0xF0000000) == 0xE0000000
-    }
-
-    /// Indicates whether this (IPv4) address is in a link local network (169.254.x.x)
-    public var inLinkLocalNet: Bool {
-        return (IPv4Addr & IN_CLASSB_NET) == IN_LINKLOCALNETNUM
-    }
-
-    /// Indicates whether this (IPv4) address is in a loopback network (127.x.x.x)
-    public var inLoopbackNet: Bool {
-        (IPv4Addr & IN_CLASSA_NET) == 0x7f000000
-    }
-
-    /// Indicates whether this (IPv4) address is in a private network (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
-    public var InPrivateNet: Bool {
-        let addr = IPv4Addr
-        return (addr & IN_CLASSA_NET) == 0x0a000000 // 10.0.0.0/8
-            || (addr & 0xfff00000) == 0xac100000    // 172.16.0.0/12
-            || (addr & IN_CLASSB_NET) == 0xac100000 // 192.168.0.0/16
-    }
-
-    /// Indicates whether this (IPv4) address is the unspecified broadcast group (224.0.0.0)
-    public var isInAddrUnspecGroup: Bool {
-        IPv4Addr == INADDR_UNSPEC_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is the all hosts multicast group address (224.0.0.1)
-    public var isInAddrAllHostsGroup: Bool {
-        IPv4Addr == INADDR_ALLHOSTS_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is the all routers multicast group (224.0.0.2)
-    public var isInAddrAllRtrsGroup: Bool {
-        IPv4Addr == INADDR_ALLRTRS_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is the IGMPv3 multicast group (224.0.0.22)
-    public var isInAddrAllRptsGroup: Bool {
-        IPv4Addr == INADDR_ALLRPTS_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is the IGMPv3 multicast group (224.0.0.18)
-    public var isInAddrCarpGroup: Bool {
-        IPv4Addr == INADDR_CARP_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is the PfSync multicast group (224.0.0.240)
-    public var isInAddrPfSyncGroup: Bool {
-        IPv4Addr == INADDR_PFSYNC_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is the multicast DNS (mDNS) multicast group (224.0.0.251)
-    public var isInAddrAllmDNSGroup: Bool {
-        IPv4Addr == INADDR_ALLMDNS_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is in a multicast network (224.x.x.x)
-    public var inMulticastNet: Bool {
-        (IPv4Addr & IN_CLASSD_NET) == INADDR_UNSPEC_GROUP
-    }
-
-    /// Indicates whether this (IPv4) address is in a local multicast group (224.0.0.x)
-    public var InLocalGroup: Bool {
-       (IPv4Addr & IN_CLASSC_NET) == INADDR_UNSPEC_GROUP
-    }
-    
-    fileprivate var IPv4Address: in_addr_t? {
-        guard isIPv4 else { return nil }
-        
-        return rawAddress.withUnsafeBufferPointer { rawBuffer in
-            rawBuffer.withMemoryRebound(to: sockaddr_in.self) {
-                $0.baseAddress!.pointer(to: \.sin_addr)!.pointee.s_addr
-            }
-        }
-    }
-
-    // Returns in_addr_t as a (host) UInt32, or INADDR_NONE
-    private var IPv4Addr: UInt32 {
-        guard let addr = IPv4Address else { return INADDR_NONE; }
-        return CFSwapInt32BigToHost(addr)
-    }
-
     /// Only for initialising the special ``null``  constant.
     private init() {
         rawAddress = []
@@ -598,7 +474,7 @@ public struct NetworkAddress {
 extension NetworkAddress: Equatable, Hashable {}
 
 extension NetworkAddress: CustomStringConvertible {
-    private func ntop(family: sa_family_t, addr: UnsafeRawPointer, maximumSize: Int) -> String {
+    fileprivate static func ntop(family: sa_family_t, addr: UnsafeRawPointer, maximumSize: Int) -> String {
         return String(unsafeUninitializedCapacity: maximumSize) { buffer in
             var actualLength = -1
             
@@ -638,23 +514,14 @@ extension NetworkAddress: CustomStringConvertible {
                 
                 switch family {
                 case sa_family_t(AF_INET):
-                    // This precondition should in principle apply universally, but on Apple platforms (e.g. macOS 13.3.1) getifaddrs does some weird shit regarding sockaddr_in, truncating it to eight bytes for netmasks, sometimes.  https://blog.wadetregaskis.com/getifaddrs-returns-truncated-sockaddr_ins-for-af_inet-ifa_netmasks
-#if !canImport(Darwin)
-                    precondition(rawAddress.count >= MemoryLayout<sockaddr_in>.size)
-#endif
-
-                    return rawBuffer.withMemoryRebound(to: sockaddr_in.self) { buffer in
-                        return ntop(family: family,
-                                    addr: buffer.baseAddress!.pointer(to: \.sin_addr)!,
-                                    maximumSize: Int(INET_ADDRSTRLEN))
-                    }
+                    return IPv4!.description
                 case sa_family_t(AF_INET6):
                     precondition(rawAddress.count >= MemoryLayout<sockaddr_in6>.size)
 
                     return rawBuffer.withMemoryRebound(to: sockaddr_in6.self) { buffer in
-                        return ntop(family: family,
-                                    addr: buffer.baseAddress!.pointer(to: \.sin6_addr)!,
-                                    maximumSize: Int(INET6_ADDRSTRLEN))
+                        return NetworkAddress.ntop(family: family,
+                                                   addr: buffer.baseAddress!.pointer(to: \.sin6_addr)!,
+                                                   maximumSize: Int(INET6_ADDRSTRLEN))
                     }
 #if canImport(Darwin) // Glibc is missing sockaddr_dl, at least at time of writing using Swift 5.8 on whatever distro GitHub's Codespaces uses.
                 case sa_family_t(AF_LINK):
@@ -698,6 +565,171 @@ extension NetworkAddress: CustomStringConvertible {
                 }
             }
         }
+    }
+}
+
+extension NetworkAddress {
+    /// A view which provides IPv4-specific properties.
+    ///
+    /// This is nil for NetworkAddresses that do not contain IPv4 addresses.
+    ///
+    /// Note that while you can use ``isIPv4`` first to determine if this property should be non-nil or not, it is simpler and safer to use `if let` or `guard let`, e.g.:
+    ///
+    ///     guard let IPv4 = address.IPv4 else {
+    ///         return
+    ///     }
+    ///
+    ///     // Now you can use `IPv4`.
+    public var IPv4: IPv4View? {
+        guard isIPv4 else {
+            return nil
+        }
+
+        // This precondition should in principle apply universally, but on Apple platforms (e.g. macOS 13.3.1) getifaddrs does some weird shit regarding sockaddr_in, truncating it to eight bytes for netmasks, sometimes.  https://blog.wadetregaskis.com/getifaddrs-returns-truncated-sockaddr_ins-for-af_inet-ifa_netmasks
+#if !canImport(Darwin)
+        precondition(rawAddress.count >= MemoryLayout<sockaddr_in>.size)
+#endif
+
+        return IPv4View(addressInNetworkOrder: rawAddress.withUnsafeBufferPointer { rawBuffer in
+            rawBuffer.withMemoryRebound(to: sockaddr_in.self) {
+                $0.baseAddress!.pointer(to: \.sin_addr)!.pointee.s_addr
+            }
+        })
+    }
+
+    /// A view over an IPv4 address, for examing IPv4-specific attributes.
+    ///
+    /// This is typically obtained using the ``NetworkAddress/IPv4`` property on ``NetworkAddress``, but it has publicly-accessible initialisers in case you want to use it for addresses you obtain elsewhere (e.g. from a different networking package or API).
+    public struct IPv4View {
+        /// The address (in host byte order).
+        fileprivate let address: UInt32
+
+        /// - Parameter address: The address (in host byte order).
+        public init(addressInHostOrder: UInt32) {
+            self.address = addressInHostOrder
+        }
+
+        /// - Parameter address: The address (in network byte order).
+        public init(addressInNetworkOrder: UInt32) {
+            self.address = UInt32(bigEndian: addressInNetworkOrder)
+        }
+
+        /// Indicates whether this (IPv4) address is the loopback address (127.0.0.1).
+        public var isLoopback: Bool {
+            address == INADDR_LOOPBACK
+        }
+
+        /// Indicates whether this netmask is a class A network (255.0.0.0).
+        public var isClassANetwork: Bool {
+            address == IN_CLASSA_NET
+        }
+
+        /// Indicates whether this address is in a class A network.
+        public var inClassANetwork: Bool {
+            (address & 0x8000_0000) == 0
+        }
+
+        /// Indicates whether this netmask is a class B network (255.255.0.0)
+        public var isClassBNetwork: Bool {
+            address == IN_CLASSB_NET
+        }
+
+        /// Indicates whether this address is in a class B network.
+        public var inClassBNetwork: Bool {
+            (address & 0xC000_0000) == 0x8000_0000
+        }
+
+        /// Indicates whether this netmask is a class C network (255.255.255.0).
+        public var isClassCNetwork: Bool {
+            address == IN_CLASSC_NET
+        }
+
+        /// Indicates whether this address is in a class C network.
+        public var inClassCNetwork: Bool {
+            (address & 0xE000_0000) == 0xC000_0000
+        }
+
+        /// Indicates whether this netmask is a class D network (multicast).
+        public var isClassDNetwork: Bool {
+            address == IN_CLASSD_NET
+        }
+
+        /// Indicates whether this address is in a class D network (multicast).
+        public var inClassDNetwork: Bool {
+            (address & 0xF000_0000) == 0xE000_0000
+        }
+
+        /// Indicates whether this address is in a link local network (169.254.x.x).
+        public var inLinkLocalNetwork: Bool {
+            (address & IN_CLASSB_NET) == IN_LINKLOCALNETNUM
+        }
+
+        /// Indicates whether this address is in a loopback network (127.x.x.x).
+        public var inLoopbackNetwork: Bool {
+            (address & IN_CLASSA_NET) == 0x7f000000
+        }
+
+        /// Indicates whether this address is in a private network (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+        public var inPrivateNetwork: Bool {
+            return (address & IN_CLASSA_NET) == 0x0a00_0000 // 10.0.0.0/8
+                || (address & 0xfff0_0000)  ==  0xac10_0000 // 172.16.0.0/12
+                || (address & IN_CLASSB_NET) == 0xac10_0000 // 192.168.0.0/16
+        }
+
+        /// Indicates whether this address is the unspecified broadcast group (224.0.0.0)
+        public var isUnspecifiedMulticastGroup: Bool {
+            address == INADDR_UNSPEC_GROUP
+        }
+
+        /// Indicates whether this address is the all hosts multicast group address (224.0.0.1).
+        public var isAllHostsMulticastGroup: Bool {
+            address == INADDR_ALLHOSTS_GROUP
+        }
+
+        /// Indicates whether this address is the all routers multicast group (224.0.0.2).
+        public var isAllRoutersMulticastGroup: Bool {
+            address == INADDR_ALLRTRS_GROUP
+        }
+
+        /// Indicates whether this address is the [CARP](https://en.wikipedia.org/wiki/Common_Address_Redundancy_Protocol) (Common Address Redundancy Protocol) multicast group (224.0.0.18).
+        public var isCARPMulticastGroup: Bool {
+            address == INADDR_CARP_GROUP
+        }
+
+        /// Indicates whether this address is the [IGMPv3](https://en.wikipedia.org/wiki/Internet_Group_Management_Protocol) multicast group (224.0.0.22).
+        public var isIGMPv3MulticastGroup: Bool {
+            address == INADDR_ALLRPTS_GROUP
+        }
+
+        /// Indicates whether this address is the [PfSync](https://en.wikipedia.org/wiki/Pfsync) multicast group (224.0.0.240).
+        public var isPfsyncMulticastGroup: Bool {
+            address == INADDR_PFSYNC_GROUP
+        }
+
+        /// Indicates whether this address is the multicast DNS ([mDNS](https://en.wikipedia.org/wiki/Multicast_DNS)) multicast group (224.0.0.251).
+        public var ismDNSMulticastGroup: Bool {
+            address == INADDR_ALLMDNS_GROUP
+        }
+
+        /// Indicates whether this address is in a multicast network (224.x.x.x).
+        public var inMulticastGroup: Bool {
+            (address & IN_CLASSD_NET) == INADDR_UNSPEC_GROUP
+        }
+
+        /// Indicates whether this address is in a local multicast group (224.0.0.x).
+        public var inLocalMulticastGroup: Bool {
+           (address & IN_CLASSC_NET) == INADDR_UNSPEC_GROUP
+        }
+    }
+}
+
+extension NetworkAddress.IPv4View: CustomStringConvertible {
+    public var description: String {
+        var networkOrderedAddress = in_addr(s_addr: address.bigEndian)
+
+        return NetworkAddress.ntop(family: sa_family_t(AF_INET),
+                                   addr: &networkOrderedAddress,
+                                   maximumSize: Int(INET_ADDRSTRLEN))
     }
 }
 
