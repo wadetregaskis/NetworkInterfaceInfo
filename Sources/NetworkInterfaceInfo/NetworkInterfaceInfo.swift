@@ -674,7 +674,7 @@ extension NetworkAddress {
 
         /// Indicates whether this address is in a loopback network (127.x.x.x).
         public var inLoopbackNetwork: Bool {
-            (address & IN_CLASSA_NET) == 0x7f000000
+            (address & IN_CLASSA_NET) == 0x7f00_0000
         }
 
         /// Indicates whether this address is in a private network (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
