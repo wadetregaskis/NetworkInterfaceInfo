@@ -4,6 +4,14 @@ import Darwin
 import Glibc
 
 public typealias errno_t = Int32
+
+// Annoyingly, /usr/include/netinet/in.h on Linux* is missing some constants.  [* = It's assumed here that if Darwin isn't available we're running on Linux, where Glibc is]
+let IN_CLASSD_NET = UInt32(0xf0000000)
+let INADDR_CARP_GROUP = UInt32(0xe0000012)
+let IN_LINKLOCALNETNUM = UInt32(0xa9fe0000) // This one at least makes sense - it _is_ an Apple-specific one.
+let INADDR_ALLRPTS_GROUP = UInt32(0xe0000016)
+let INADDR_PFSYNC_GROUP = UInt32(0xe00000f0)
+let INADDR_ALLMDNS_GROUP = UInt32(0xe00000fb)
 #endif
 
 import Foundation
