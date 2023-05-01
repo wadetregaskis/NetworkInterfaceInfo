@@ -1,3 +1,7 @@
+#if !canImport(Network)
+#warning("NetworkInterfaceChangeMonitoring requires the Network module, which is not available (it is a propertiary Apple module only available on Apple platforms, not Linux or Windows).")
+#else
+
 @preconcurrency import Dispatch
 import FoundationExtensions
 @preconcurrency import Network
@@ -267,3 +271,4 @@ extension NetworkInterface.Change.ModificationNature: CustomStringConvertible {
                 .joined(separator: ", ")
     }
 }
+#endif

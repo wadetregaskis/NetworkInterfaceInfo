@@ -1,3 +1,7 @@
+#if !canImport(Network)
+#warning("NetworkInterfaceChangeMonitoring requires the Network module, which is not available (it is a propertiary Apple module only available on Apple platforms, not Linux or Windows).")
+#else
+
 import FoundationExtensions
 import XCTest
 import NetworkInterfaceInfo
@@ -36,3 +40,4 @@ final class NetworkInterfaceChangeMonitoringTests: XCTestCase {
         task.cancel()
     }
 }
+#endif
