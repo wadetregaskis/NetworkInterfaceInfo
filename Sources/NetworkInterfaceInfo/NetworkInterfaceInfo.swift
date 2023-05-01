@@ -19,19 +19,19 @@ import FoundationExtensions
 /// Dictionary(grouping: NetworkInterface.all, by: \.name)
 /// ```
 public struct NetworkInterface {
-    private let ifaddr: ifaddrs
+    private let ifaddr: UnsafeMutablePointer<ifaddrs>
     private let lifehook: Lifehook
     
     /// The name of the logical network interface, which may be a physical network interface (e.g. en0 representing an ethernet or wifi interface) or a virtual network interface (e.g. lo0 representing a network purely for communication within the local host).
     ///
     /// You may encounter multiple `NetworkInterface` instances with the same ``name`` when enumerating all the available interfaces (e.g. with ``all``.  Each will have a different ``address``, however.
     public var name: String {
-        String(cString: ifaddr.ifa_name)
+        String(cString: ifaddr.pointee.ifa_name)
     }
     
     /// A network address of the host on this interface.  e.g. 127.0.0.1 or ::1 on lo0, or 192.168.0.7 on a home network.
     public var address: NetworkAddress? {
-        guard let addr = ifaddr.ifa_addr else { return nil }
+        guard let addr = ifaddr.pointee.ifa_addr else { return nil }
         return NetworkAddress(addr: addr)
     }
     
@@ -39,11 +39,11 @@ public struct NetworkInterface {
     ///
     /// Not always present, even where it does logically apply - typically that implies the interface in question is not actually active (contrary to what ``up`` or ``running`` might suggest).
     public var netmask: NetworkAddress? {
-        guard let mask = ifaddr.ifa_netmask else { return nil }
+        guard let mask = ifaddr.pointee.ifa_netmask else { return nil }
         
 #if canImport(Darwin) // Linux's sockaddr doesn't have a length field (sa_len).
         guard 0 < mask.pointee.sa_len else { return nil }
-        let realSize = (AF_INET == ifaddr.ifa_netmask.pointee.sa_family) ? 8 : nil // As of macOS 13.3.1 (and presumably earlier) getifaddrs does some weird shit regarding sockaddr_in, truncating it to eight bytes for netmasks, sometimes.  https://blog.wadetregaskis.com/getifaddrs-returns-truncated-sockaddr_ins-for-af_inet-ifa_netmasks
+        let realSize = (AF_INET == ifaddr.pointee.ifa_netmask.pointee.sa_family) ? 8 : nil // As of macOS 13.3.1 (and presumably earlier) getifaddrs does some weird shit regarding sockaddr_in, truncating it to eight bytes for netmasks, sometimes.  https://blog.wadetregaskis.com/getifaddrs-returns-truncated-sockaddr_ins-for-af_inet-ifa_netmasks
 #else
         let realSize: Int? = nil
 #endif
@@ -57,7 +57,7 @@ public struct NetworkInterface {
         
 #if canImport(Darwin)
         // Use of ifa_dstaddr is correct, not a typo.  On Apple platforms this field serves double-duty (implying that IFF_BROADCAST is mutually exclusive to IFF_POINTTOPOINT, though nothing in the ifaddrs design enforces this).  See the man page for getifaddrs.
-        if let addr = ifaddr.ifa_dstaddr, 0 < addr.pointee.sa_len {
+        if let addr = ifaddr.pointee.ifa_dstaddr, 0 < addr.pointee.sa_len {
             return NetworkAddress(addr: addr)
         } else {
             // Workaround for getifaddrs bug whereby it never specifies broadcast addresses.  https://blog.wadetregaskis.com/getifaddrs-never-specifies-broadcast-addresses
@@ -86,21 +86,13 @@ public struct NetworkInterface {
     /// The address of the other side of a point-to-point link.  Only applies to point-to-point links (as per ``pointToPoint``.
     public var destinationAddress: NetworkAddress? {
         guard flags.contains(.pointToPoint) else { return nil }
-        
-        let addr: UnsafeMutablePointer<sockaddr>
 
 #if canImport(Darwin)
-        guard nil != ifaddr.ifa_dstaddr else {
-            return nil
-        }
-
-        addr = ifaddr.ifa_dstaddr
-
-        guard 0 < addr.pointee.sa_len else { // Sometimes Apple's getifaddrs returns ifa_dstaddr's that are invalid; sa_len & sa_family are zero.  e.g. for utunN interfaces.
+        guard let addr = ifaddr.pointee.ifa_dstaddr, 0 < addr.pointee.sa_len else { // Sometimes Apple's getifaddrs returns ifa_dstaddr's that are invalid; sa_len & sa_family are zero.  e.g. for utunN interfaces.
             return nil
         }
 #else
-        addr = ifaddr.ifa_ifu.ifu_dstaddr
+        let addr = ifaddr.ifa_ifu.ifu_dstaddr
 #endif
 
         return NetworkAddress(addr: addr)
@@ -125,7 +117,7 @@ public struct NetworkInterface {
 
     /// Flags for the interface, as an `OptionSet`.  You can also use the boolean convenience properties, e.g. ``up``, ``loopback``, etc, if you prefer.
     public var flags: Flags {
-        Flags(rawValue: ifaddr.ifa_flags)
+        Flags(rawValue: ifaddr.pointee.ifa_flags)
     }
     
     /// Flags catagorising the behaviour, status, and configuration of the interface.
@@ -233,7 +225,7 @@ public struct NetworkInterface {
             let lifehook = Lifehook(ifHead)
             
             return sequence(first: ifHead, next: { $0.pointee.ifa_next }).map {
-                NetworkInterface(ifaddr: $0.pointee, lifehook: lifehook)
+                NetworkInterface(ifaddr: $0, lifehook: lifehook)
             }
         }
     }
