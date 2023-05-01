@@ -21,6 +21,8 @@ try NetworkInterface.all
 
 See the [documentation](https://swiftpackageindex.com/wadetregaskis/NetworkInterfaceInfo/main/documentation/networkinterfaceinfo) for more details.
 
+## Change monitoring
+
 There is also a second module which allows you to monitor for changes to network interfaces, as shown in the example below.
 
 _Note_: this additional module is currently only implemented for platforms that have Apple's Network package available (i.e. Apple's platforms, not Linux or Windows).
