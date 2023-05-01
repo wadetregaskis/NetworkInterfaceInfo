@@ -225,23 +225,16 @@ public struct NetworkInterface {
             guard 0 == getifaddrs(&ifHead) else {
                 throw Errors.getifaddrsFailed(errno: errno)
             }
-
-            var result = [NetworkInterface]()
             
             guard let ifHead else {
-                return result
+                return []
             }
             
             let lifehook = Lifehook(ifHead)
             
-            var ifNext: UnsafeMutablePointer<ifaddrs>? = ifHead
-            
-            while let ifCurrent = ifNext?.pointee {
-                result.append(NetworkInterface(ifaddr: ifCurrent, lifehook: lifehook))
-                ifNext = ifCurrent.ifa_next
+            return sequence(first: ifHead, next: { $0.pointee.ifa_next }).map {
+                NetworkInterface(ifaddr: $0.pointee, lifehook: lifehook)
             }
-            
-            return result
         }
     }
         
