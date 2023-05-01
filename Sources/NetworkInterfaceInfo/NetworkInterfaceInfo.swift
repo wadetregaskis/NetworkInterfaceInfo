@@ -114,7 +114,7 @@ public struct NetworkInterface {
         public static let running = Flags(rawValue: UInt32(IFF_RUNNING))
         public static let noARP = Flags(rawValue: UInt32(IFF_NOARP))
         public static let promiscuous = Flags(rawValue: UInt32(IFF_PROMISC))
-        public static let receivesAllMulticastPackets = Flags(rawValue: UInt32(IFF_MULTICAST))
+        public static let receivesAllMulticastPackets = Flags(rawValue: UInt32(IFF_ALLMULTI))
         public static let transmissionInProgress = Flags(rawValue: UInt32(IFF_OACTIVE))
         public static let simplex = Flags(rawValue: UInt32(IFF_SIMPLEX))
         public static let link0 = Flags(rawValue: UInt32(IFF_LINK0))
