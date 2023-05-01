@@ -11,7 +11,13 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    name: Swift on ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: swift-actions/setup-swift@v1
