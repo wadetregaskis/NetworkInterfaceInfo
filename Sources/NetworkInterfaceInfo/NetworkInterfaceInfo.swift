@@ -726,7 +726,7 @@ extension NetworkAddress {
 
         /// Indicates whether this address is in a local multicast group (224.0.0.x).
         public var inLocalMulticastGroup: Bool {
-           (address & IN_CLASSC_NET) == INADDR_UNSPEC_GROUP
+            (address & IN_CLASSC_NET) == INADDR_UNSPEC_GROUP
         }
     }
 }
