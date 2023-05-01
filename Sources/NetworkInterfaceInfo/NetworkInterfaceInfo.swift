@@ -90,9 +90,13 @@ public struct NetworkInterface {
         let addr: UnsafeMutablePointer<sockaddr>
 
 #if canImport(Darwin)
+        guard nil != ifaddr.ifa_dstaddr else {
+            return nil
+        }
+
         addr = ifaddr.ifa_dstaddr
 
-        guard let addr, 0 < addr.pointee.sa_len else { // Sometimes Apple's getifaddrs returns ifa_dstaddr's that are invalid; sa_len & sa_family are zero.  e.g. for utunN interfaces.
+        guard 0 < addr.pointee.sa_len else { // Sometimes Apple's getifaddrs returns ifa_dstaddr's that are invalid; sa_len & sa_family are zero.  e.g. for utunN interfaces.
             return nil
         }
 #else
