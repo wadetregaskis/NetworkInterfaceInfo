@@ -2,6 +2,16 @@
 
 import PackageDescription
 
+let swiftSettings: [SwiftSetting] = [
+   .enableUpcomingFeature("BareSlashRegexLiterals"),
+   .enableUpcomingFeature("ConciseMagicFile"),
+   .enableUpcomingFeature("ExistentialAny"),
+   .enableUpcomingFeature("ForwardTrailingClosures"),
+   .enableUpcomingFeature("ImplicitOpenExistentials"),
+   .enableUpcomingFeature("StrictConcurrency"),
+   .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete", "-enable-actor-data-race-checks"]),
+]
+
 let package = Package(
     name: "NetworkInterfaceInfo",
     platforms: [
@@ -15,6 +25,9 @@ let package = Package(
         .library(
             name: "NetworkInterfaceInfo",
             targets: ["NetworkInterfaceInfo"]),
+        .library(
+            name: "NetworkInterfaceChangeMonitoring",
+            targets: ["NetworkInterfaceChangeMonitoring"]),
     ],
     dependencies: [
         .package(url: "https://github.com/wadetregaskis/FoundationExtensions.git", .upToNextMajor(from: "2.0.0")),
@@ -22,9 +35,21 @@ let package = Package(
     targets: [
         .target(
             name: "NetworkInterfaceInfo",
-            dependencies: [.product(name: "FoundationExtensions", package: "FoundationExtensions")]),
+            dependencies: [.product(name: "FoundationExtensions", package: "FoundationExtensions")],
+            swiftSettings: swiftSettings),
         .testTarget(
             name: "NetworkInterfaceInfoTests",
-            dependencies: ["NetworkInterfaceInfo"]),
+            dependencies: ["NetworkInterfaceInfo"],
+            swiftSettings: swiftSettings),
+
+        .target(
+            name: "NetworkInterfaceChangeMonitoring",
+            dependencies: ["NetworkInterfaceInfo",
+                           .product(name: "FoundationExtensions", package: "FoundationExtensions")],
+            swiftSettings: swiftSettings),
+        .testTarget(
+            name: "NetworkInterfaceChangeMonitoringTests",
+            dependencies: ["NetworkInterfaceChangeMonitoring"],
+            swiftSettings: swiftSettings)
     ]
 )
