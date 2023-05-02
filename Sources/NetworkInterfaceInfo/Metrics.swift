@@ -88,7 +88,7 @@ extension NetworkInterface {
         /// The size (in bytes) of the physical layer addresses (e.g. six for Ethernet, where MAC addresses are used).
         public let mediaAddressLength: UInt8
 
-        /// The size (in bytes) of each transmission unit header (e.g. 14 for Ethernet, where a transmission unit is a packet).
+        /// The maximum size (in bytes) of each transmission unit header (e.g. 14 for Ethernet, where a transmission unit is a packet).
         public let mediaHeaderLength: UInt8
 
         /// Maximum Transmission Unit.
