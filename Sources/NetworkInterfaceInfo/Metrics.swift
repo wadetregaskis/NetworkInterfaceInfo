@@ -93,7 +93,7 @@ extension NetworkInterface {
 
         /// Maximum Transmission Unit.
         ///
-        /// The maximum size of a single transmission via this interface (e.g. packet size, for packet-based interfaces).  Larger values nominally imply better efficiency and higher real-world throughput, but there are usually technical limits on how large this value can be (and there are potential downsides to large values in practice).
+        /// The maximum size of a single transmission (not counting link-layer overhead) via this interface (e.g. packet payload size, for packet-based interfaces).  Larger values nominally imply better efficiency and higher real-world throughput, but there are usually technical limits on how large this value can be (and there are potential downsides to large values in practice).
         ///
         /// e.g. on Ethernet 1,500 is a very common MTU, but sometimes it's smaller or much larger (e.g. 9,000 for "Jumbo" mode).
         public let MTU: UInt32
