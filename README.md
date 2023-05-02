@@ -19,7 +19,7 @@ try NetworkInterface.all
     .filter(\.isIPv4)           // Use IPv4.
 ```
 
-Metrics are also available - both configuration values such as MTU and line speed, as well as counters such as bytes & packets sent & received.
+Metrics are also available (only on Apple platforms) - both configuration values such as MTU and line speed, as well as counters such as bytes & packets sent & received.
 
 See the [documentation](https://swiftpackageindex.com/wadetregaskis/NetworkInterfaceInfo/main/documentation/networkinterfaceinfo) for more details.
 

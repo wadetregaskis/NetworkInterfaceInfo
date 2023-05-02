@@ -1,9 +1,5 @@
 #if canImport(Darwin)
 import Darwin
-#else
-import Glibc
-#endif
-
 import Foundation
 
 extension NetworkInterface {
@@ -225,3 +221,4 @@ extension NetworkInterface.Metrics.Counters: CustomDebugStringConvertible {
         "Counters(bytes: \(bytes), packets: \(packets), packetsViaMulticast: \(packetsViaMulticast), errors: \(errors), queueDrops: \(queueDrops), timing: \(timing), quota: \(quota))"
     }
 }
+#endif
