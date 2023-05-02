@@ -100,7 +100,7 @@ extension NetworkInterface {
 
         public let routingMetric: UInt32
 
-        /// Bytes per second.
+        /// Bits per second.
         ///
         /// Note that this is the theoretical or "fundamental" speed, not accounting for protocol & other overheads.  Actual speed as seen by end-applications will invariably be lower.
         public let lineSpeed: UInt64
