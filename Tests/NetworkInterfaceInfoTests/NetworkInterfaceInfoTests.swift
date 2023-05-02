@@ -12,6 +12,7 @@ final class NetworkInterfaceInfoTests: XCTestCase {
                       Broadcast: \(interface.broadcastAddress.orNilString)
                       Destination: \(interface.destinationAddress.orNilString)
                       Flags: \(interface.flags)
+                      Metrics: \(try interface.metrics)
                   """)
         }
     }

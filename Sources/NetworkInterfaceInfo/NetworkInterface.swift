@@ -233,8 +233,16 @@ public struct NetworkInterface {
     }
         
     public enum Errors: Error {
-        /// The low-level OS-library function that retrieves all the information from the kernel, getifaddrs, failed with the given 'explanation' by way of an error number.  These error codes are defined in `/usr/include/sys/errno.h` (and exposed to Swift through the ``Darwin`` or ``Glibc`` modules), as e.g. ``Darwin/ENOMEM``.
+        /// The low-level OS-library function that retrieves interface information from the kernel, `getifaddrs`, failed with the given 'explanation' by way of an error number.  These error codes are defined in `/usr/include/sys/errno.h` (and exposed to Swift through the ``Darwin`` or ``Glibc`` modules), as e.g. ``Darwin/ENOMEM``.
         case getifaddrsFailed(errno: errno_t)
+
+        /// The hardware interface name is apparently invalid, according to the OS libraries or kernel.
+        ///
+        /// This can be thrown by ``Metrics(interface:)`` (as used by ``metrics``) when trying to convert the interface name to the index needed for the metrics lookup from the OS.  It indicates either a bug somewhere - whether in this package or the OS libraries or the OS kernel - or a failed race condition where the interface name changed.
+        case invalidInterfaceName(String)
+
+        /// The low-level OS-library function that retrieves interface metrics from the kernel, `sysctl`, failed with the given 'explanation' by way of an error number.  These error codes are defined in `/usr/include/sys/errno.h` (and exposed to Swift through the ``Darwin`` or ``Glibc`` modules), as e.g. ``Darwin/ENOMEM``.
+        case sysctlFailed(errno: errno_t)
     }
 }
 
