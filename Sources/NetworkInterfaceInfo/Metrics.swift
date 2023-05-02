@@ -86,6 +86,8 @@ extension NetworkInterface {
         //public let interfacePhysicalType: UInt8 // Seemingly always zero on macOS, and web search results suggest it's a never-implemented hangover from BSD.
 
         /// The size (in bytes) of the physical layer addresses (e.g. six for Ethernet, where MAC addresses are used).
+        ///
+        /// May be zero if addressing does not apply to the interface type in question.
         public let mediaAddressLength: UInt8
 
         /// The maximum size (in bytes) of each transmission unit header (e.g. 14 for Ethernet, where a transmission unit is a packet).
