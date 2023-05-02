@@ -9,7 +9,8 @@ let swiftSettings: [SwiftSetting] = [
    .enableUpcomingFeature("ForwardTrailingClosures"),
    .enableUpcomingFeature("ImplicitOpenExistentials"),
    .enableUpcomingFeature("StrictConcurrency"),
-   .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete", "-enable-actor-data-race-checks"]),
+   // Sadly StrictConcurrency isn't actually recognised by the Swift compiler as an upcoming feature, due to an apparent oversight by the compiler team.  So "unsafe" flags have to be used.  But if you do use them, you can't then actually _use_ the package from any other package - the Swift Package Manager will throw up all over the idea with compiler errors.  Sigh.
+   //.unsafeFlags(["-Xfrontend", "-strict-concurrency=complete", "-enable-actor-data-race-checks"]),
 ]
 
 let package = Package(
