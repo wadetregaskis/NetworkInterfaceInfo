@@ -116,17 +116,19 @@ extension NetworkInterface {
             public let bytes: UInt64
             public let packets: UInt64
             public let packetsViaMulticast: UInt64
-            public let errors: UInt64 /// Unit is packets.
-            public let queueDrops: UInt64 /// Only applies to input; always 0 for output.  Unit is packets.
+            public let errors: UInt64 /// Unit is transmission units (e.g. packets).
+            public let queueDrops: UInt64 /// Only applies to input; always 0 for output.  Unit is transmission units (e.g. packets).
+            public let collisions: UInt64 /// Only applies to output; always 0 for input.  Unit is transmission units (e.g. packets).
+            public let packetsWithUnsupportedProtocol: UInt64 /// Only applies to input; always 0 for output.
+
             public let timing: UInt32
+
             public let quota: UInt8
         }
 
         public let input: Counters
         public let output: Counters
 
-        public let collisions: UInt64
-        public let packetsWithMissingOrUnsupportedProtocol: UInt64
 
         public let timeOfLastAdministrativeChange: Date
 
@@ -187,6 +189,8 @@ extension NetworkInterface {
                              packetsViaMulticast: data.ifmd_data.ifi_imcasts,
                              errors: data.ifmd_data.ifi_ierrors,
                              queueDrops: data.ifmd_data.ifi_iqdrops,
+                             collisions: 0,
+                             packetsWithUnsupportedProtocol: data.ifmd_data.ifi_noproto,
                              timing: data.ifmd_data.ifi_recvtiming,
                              quota: data.ifmd_data.ifi_recvquota)
 
@@ -195,11 +199,10 @@ extension NetworkInterface {
                               packetsViaMulticast: data.ifmd_data.ifi_omcasts,
                               errors: data.ifmd_data.ifi_oerrors,
                               queueDrops: 0,
+                              collisions: data.ifmd_data.ifi_collisions,
+                              packetsWithUnsupportedProtocol: 0,
                               timing: data.ifmd_data.ifi_xmittiming,
                               quota: data.ifmd_data.ifi_xmitquota)
-
-            collisions = data.ifmd_data.ifi_collisions
-            packetsWithMissingOrUnsupportedProtocol = data.ifmd_data.ifi_noproto
 
             timeOfLastAdministrativeChange = Date(timeIntervalSince1970: Double(data.ifmd_data.ifi_lastchange.tv_sec) + (Double(data.ifmd_data.ifi_lastchange.tv_usec) / 1_000_000))
         }
