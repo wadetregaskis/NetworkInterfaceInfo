@@ -45,7 +45,7 @@ for try await change in NetworkInterface.changes() {
 }
 ```
 
-_Note_: you still need to explicitly `import NetworkInterfaceInfo` in order to access the `changes` property and otherwise use `NetworkInterface` et al.
+_Note_: you still need to explicitly `import NetworkInterfaceInfo` in order to access the `changes` method and otherwise use `NetworkInterface` et al.
 
 This monitoring functionality is in a separate module so that you don't pay the cost of it if you don't need it.
 
