@@ -5,7 +5,7 @@ import XCTest
 final class NetworkInterfaceInfoTests: XCTestCase {
     func testInProduction🤪() throws {
         for interface in try NetworkInterface.all {
-#if canImport(Darwin)
+#if canImport(Darwin) && !os(iOS) && !os(watchOS) && !os(tvOS)
             print("""
                   \(interface.name):
                       Address: \(interface.address.orNilString) (\((interface.address?.family).orNilString))

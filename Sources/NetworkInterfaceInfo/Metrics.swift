@@ -1,4 +1,4 @@
-#if canImport(Darwin)
+#if canImport(Darwin) && !os(iOS) && !os(watchOS) && !os(tvOS) // ifmibdata isn't defined in Glibc, nor on iOS-based platforms. 😔
 import Darwin
 import Foundation
 
