@@ -258,3 +258,5 @@ extension NetworkAddress.IPv4View: CustomStringConvertible {
                                    maximumSize: Int(INET_ADDRSTRLEN))
     }
 }
+
+extension NetworkAddress.IPv4View: Equatable, Hashable {}
