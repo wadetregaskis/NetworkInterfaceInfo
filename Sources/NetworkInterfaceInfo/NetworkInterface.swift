@@ -108,7 +108,8 @@ public struct NetworkInterface {
     ///
     /// Both situations are theoretically impossible but technically could occur if there's a bug somewhere (whether in this package, the OS libraries, or the OS kernel).  You can force-unwrap the optional result if you really want, but consider if you can just gloss over it if it's nil, rather than crashing.
     public var addressFamily: NetworkAddress.AddressFamily? {
-        let families = Set([address?.family, netmask?.family, destinationAddress?.family, broadcastAddress?.family])
+        var families = Set([address?.family, netmask?.family, destinationAddress?.family, broadcastAddress?.family])
+        families.remove(nil)
 
         guard let family = families.first, 1 == families.count else {
             return nil
