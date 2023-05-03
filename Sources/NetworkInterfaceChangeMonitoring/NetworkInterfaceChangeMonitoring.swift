@@ -9,9 +9,9 @@ import NetworkInterfaceInfo
 
 public extension NetworkInterface {
     /// Encapsulates a change to a ``NetworkInterfaceInfo/NetworkInterface/all``.
-    struct Change {
+    struct Change: Sendable {
         /// The nature of an interface change - i.e. whether it is new (``added``), ``modified``, or has disappeared (``removed``).
-        public enum Nature {
+        public enum Nature: Sendable {
             /// The interface appears to be new (no similar interfaces previously existed, based on address family, address, netmask, etc).
             case added
 
@@ -23,7 +23,7 @@ public extension NetworkInterface {
         }
 
         /// Indicates which parts of a ``NetworkInterfaceInfo/NetworkInterface`` have changed.
-        public struct ModificationNature: OptionSet {
+        public struct ModificationNature: OptionSet, Sendable {
             public let rawValue: Int8
 
             public static let address            = ModificationNature(rawValue: 1 << 0)

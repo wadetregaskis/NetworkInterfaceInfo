@@ -18,7 +18,7 @@ import FoundationExtensions
 /// ```swift
 /// Dictionary(grouping: NetworkInterface.all, by: \.name)
 /// ```
-public struct NetworkInterface {
+public struct NetworkInterface: Sendable {
     private let ifaddr: UnsafeMutablePointer<ifaddrs>
     private let lifehook: Lifehook
     
@@ -126,7 +126,7 @@ public struct NetworkInterface {
     /// Flags catagorising the behaviour, status, and configuration of the interface.
     ///
     /// These correspond to the `IFF_*` flags in `/usr/include/net/if.h`.  Many of these are found across all \*nix systems - you can find a lot of information online about what specifically each one means.  The meaning & purpose of many of them is esoteric and not of interest to most users - the most commonly noted ones are ``up`` (is the interface actually operating & connected to the network) and ``loopback`` (does the interface operate only on the current host, not actually out onto a shared network).
-    public struct Flags: OptionSet {
+    public struct Flags: OptionSet, Sendable {
         public let rawValue: UInt32
         
         // Only defined explicitly because of a bug in Swift (https://github.com/apple/swift/issues/58521).
@@ -192,7 +192,7 @@ public struct NetworkInterface {
     public var supportsMulticast: Bool { flags.contains(.supportsMulticast) }
     
     /// Keeps the underlying data structures, as returned by getifaddrs, alive as long as any NetworkInterfaces are using them.
-    private final class Lifehook {
+    private final class Lifehook: Sendable {
         private let head: UnsafeMutablePointer<ifaddrs>
         
         init(_ ptr: UnsafeMutablePointer<ifaddrs>) {
@@ -233,7 +233,7 @@ public struct NetworkInterface {
         }
     }
         
-    public enum Errors: Error {
+    public enum Errors: Error, Sendable {
         /// The low-level OS-library function that retrieves interface information from the kernel, `getifaddrs`, failed with the given 'explanation' by way of an error number.  These error codes are defined in `/usr/include/sys/errno.h` (and exposed to Swift through the ``Darwin`` or ``Glibc`` modules), as e.g. ``Darwin/ENOMEM``.
         case getifaddrsFailed(errno: errno_t)
 

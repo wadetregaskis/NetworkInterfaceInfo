@@ -9,7 +9,7 @@ import Foundation
 /// A network address - e.g. 127.0.0.1 as an example IPv4 address, or 2601:647:4d01:93c4:813:a728:b5b3:1d32 as an example IPv6 address.
 ///
 /// This structure is pretty lightweight - the address data is stored in an efficient binary form - and standalone (so you can keep copies of these addresses around as along as you like, without incurring any additional memory cost, unlike for ``NetworkInterface``).
-public struct NetworkAddress {
+public struct NetworkAddress: Sendable {
     internal let rawAddress: [UInt8]
 
 #if canImport(Darwin)
@@ -68,7 +68,7 @@ public struct NetworkAddress {
     /// This is a redefinition of the constants defined in the OS's standard library headers (`AF_UNIX`, `AF_INET`, etc) and as exposed to Swift via the ``Darwin`` or ``Glibc`` module.  They are redefined here because using the 'constants' directly from that module is annoying because they are (a) global, so no context-sensitive auto-completion possible and (b) not actualy defined as constants, so they can't be used in all contexts.
     ///
     /// Note that it's conceivable - but very unlikely - that there will be new address families added in future OS versions.  For this reason the ``unsupported`` case exists, representing a value returned by the underlying OS APIs that this Swift library doesn't know about.  If you ever encounter this please report it to the library authors at https://github.com/wadetregaskis/NetworkInterfaceInfo/issues.
-    public enum AddressFamily: sa_family_t, CaseIterable {
+    public enum AddressFamily: sa_family_t, CaseIterable, Sendable {
         case unspecified = 0
 
         /// "Unix" or "local" addressing - this is for communication strictly between processes on the same host.  It is relatively secure and efficient.

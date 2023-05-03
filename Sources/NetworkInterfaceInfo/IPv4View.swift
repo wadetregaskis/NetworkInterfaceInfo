@@ -46,7 +46,7 @@ extension NetworkAddress {
     /// A view over an IPv4 address, for examing IPv4-specific attributes.
     ///
     /// This is typically obtained using the ``NetworkAddress/IPv4`` property on ``NetworkAddress``, but it has publicly-accessible initialisers in case you want to use it for addresses you obtain elsewhere (e.g. from a different networking package or API).
-    public struct IPv4View {
+    public struct IPv4View: Sendable {
         /// The address (in host byte order).
         public let address: UInt32
 

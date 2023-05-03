@@ -3,8 +3,8 @@ import Darwin
 import Foundation
 
 extension NetworkInterface {
-    public struct Metrics {
-        public enum InterfaceType: UInt8, CaseIterable {
+    public struct Metrics: Sendable {
+        public enum InterfaceType: UInt8, CaseIterable, Sendable {
             case other = 1
             case arpanetOldStyle = 2
             case arpanetHDH = 3
@@ -108,7 +108,7 @@ extension NetworkInterface {
         public let maximumSendQueueSize: UInt32
         public let sendQueueDropCount: UInt32
 
-        public struct Counters {
+        public struct Counters: Sendable {
             public let bytes: UInt64
             public let packets: UInt64
             public let packetsViaMulticast: UInt64
