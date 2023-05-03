@@ -48,7 +48,7 @@ extension NetworkAddress {
     /// This is typically obtained using the ``NetworkAddress/IPv4`` property on ``NetworkAddress``, but it has publicly-accessible initialisers in case you want to use it for addresses you obtain elsewhere (e.g. from a different networking package or API).
     public struct IPv4View {
         /// The address (in host byte order).
-        internal let address: UInt32
+        public let address: UInt32
 
         /// - Parameter address: The address (in host byte order).
         public init(addressInHostOrder: UInt32) {
