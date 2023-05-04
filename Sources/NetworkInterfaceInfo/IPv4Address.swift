@@ -73,7 +73,7 @@ extension NetworkAddress {
                 return nil
             }
 
-            self.address = result.s_addr
+            self.init(addressInNetworkOrder: result.s_addr)
         }
 
         /// Indicates whether this (IPv4) address is the loopback address (127.0.0.1).
