@@ -60,6 +60,22 @@ extension NetworkAddress {
             self.address = UInt32(bigEndian: addressInNetworkOrder)
         }
 
+        /// - Parameters:
+        ///   - string: The IP address in string form, e.g. "127.0.0.1" or any of the more esoteric historical forms such as "192.168.4839".  See `man 3 inet_aton` for more details.
+        ///
+        ///     This initialiser does not resolve hostnames or aliases - `string` may only be an IP address.
+        ///
+        ///     If the given string cannot be interpreted as an IP address, initialisation fails and nil is returned.
+        public init?(from string: String) {
+            var result = in_addr()
+            
+            guard 1 == inet_aton(string, &result) else {
+                return nil
+            }
+
+            self.address = result.s_addr
+        }
+
         /// Indicates whether this (IPv4) address is the loopback address (127.0.0.1).
         public var isLoopback: Bool {
             address == INADDR_LOOPBACK
