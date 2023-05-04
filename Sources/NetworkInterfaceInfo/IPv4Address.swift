@@ -26,7 +26,7 @@ extension NetworkAddress {
     ///     }
     ///
     ///     // Now you can use `IPv4`.
-    public var IPv4: IPv4View? {
+    public var IPv4: IPv4Address? {
         guard isIPv4 else {
             return nil
         }
@@ -36,7 +36,7 @@ extension NetworkAddress {
         precondition(rawAddress.count >= MemoryLayout<sockaddr_in>.size)
 #endif
 
-        return IPv4View(addressInNetworkOrder: rawAddress.withUnsafeBufferPointer { rawBuffer in
+        return IPv4Address(addressInNetworkOrder: rawAddress.withUnsafeBufferPointer { rawBuffer in
             rawBuffer.withMemoryRebound(to: sockaddr_in.self) {
                 $0.baseAddress!.pointer(to: \.sin_addr)!.pointee.s_addr
             }
@@ -46,7 +46,7 @@ extension NetworkAddress {
     /// A view over an IPv4 address, for examing IPv4-specific attributes.
     ///
     /// This is typically obtained using the ``NetworkAddress/IPv4`` property on ``NetworkAddress``, but it has publicly-accessible initialisers in case you want to use it for addresses you obtain elsewhere (e.g. from a different networking package or API).
-    public struct IPv4View: Sendable {
+    public struct IPv4Address: Sendable {
         /// The address (in host byte order).
         public let address: UInt32
 
@@ -249,7 +249,7 @@ extension NetworkAddress {
     }
 }
 
-extension NetworkAddress.IPv4View: CustomStringConvertible {
+extension NetworkAddress.IPv4Address: CustomStringConvertible {
     public var description: String {
         var networkOrderedAddress = in_addr(s_addr: address.bigEndian)
 
@@ -259,4 +259,4 @@ extension NetworkAddress.IPv4View: CustomStringConvertible {
     }
 }
 
-extension NetworkAddress.IPv4View: Equatable, Hashable {}
+extension NetworkAddress.IPv4Address: Equatable, Hashable {}
