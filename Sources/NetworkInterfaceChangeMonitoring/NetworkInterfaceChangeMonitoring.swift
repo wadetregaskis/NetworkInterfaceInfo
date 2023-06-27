@@ -63,7 +63,7 @@ public extension NetworkInterface {
     ///     The ideal value is use-case specific.  If you don't care whether you see changes as single modifications vs pairs of adds and removes, a value of zero (the default) is the best.  Otherwise, a single second is helpful but typically not sufficient to coalesce all modifications.  Several seconds is usually sufficient, but there can still be exceptions.  Consider what the delay means for your use-case - e.g. if it takes a while to switch wifi networks, during which time the internet is not accessible, are you satisfied with eventually just receiving notification of a change in wifi settings or do you want to know more immediately that access via wifi has been [temporarily] lost?
     ///
     /// - Returns: An endless stream of change events.  Awaiting its next value will block (as needed) until the next change occurs.
-    static func changes(coalescingPeriod: Int = 0) -> AsyncThrowingStream<Change, Error> {
+    static func changes(coalescingPeriod: Int = 0) -> AsyncThrowingStream<Change, any Error> {
         AsyncThrowingStream { continuation -> Void in
             var lastInterfaces: Set<NetworkInterface>
 
