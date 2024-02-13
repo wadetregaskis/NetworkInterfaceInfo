@@ -18,7 +18,7 @@ import FoundationExtensions
 /// ```swift
 /// Dictionary(grouping: NetworkInterface.all, by: \.name)
 /// ```
-public struct NetworkInterface: Sendable {
+public struct NetworkInterface: @unchecked Sendable {
     private let ifaddr: UnsafeMutablePointer<ifaddrs>
     private let lifehook: Lifehook
     
@@ -192,7 +192,7 @@ public struct NetworkInterface: Sendable {
     public var supportsMulticast: Bool { flags.contains(.supportsMulticast) }
     
     /// Keeps the underlying data structures, as returned by getifaddrs, alive as long as any NetworkInterfaces are using them.
-    private final class Lifehook: Sendable {
+    private final class Lifehook: @unchecked Sendable {
         private let head: UnsafeMutablePointer<ifaddrs>
         
         init(_ ptr: UnsafeMutablePointer<ifaddrs>) {
