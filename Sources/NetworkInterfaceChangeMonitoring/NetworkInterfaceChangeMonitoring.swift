@@ -37,7 +37,7 @@ public extension NetworkInterface {
             }
         }
 
-        /// The nature of the change - whether it represents a new interface, and interface that's just disappeared, or one that has been modified in some manner.  In the latter case an indication of what changed is provided via
+        /// The nature of the change - whether it represents a new interface, and interface that's just disappeared, or one that has been modified in some manner.  In the latter case an indication of what changed is provided via an associated enum value (a ``ModificationNature`` `OptionSet`).
         public let nature: Nature
         public let interface: NetworkInterface
 
