@@ -10,7 +10,7 @@ import NetworkInterfaceInfo
 public extension NetworkInterface {
     /// Encapsulates a change to a ``NetworkInterfaceInfo/NetworkInterface/all``.
     struct Change: Sendable {
-        /// The nature of an interface change - i.e. whether it is new (``added``), ``modified``, or has disappeared (``removed``).
+        /// The nature of an interface change - i.e. whether it is new, modified, or has disappeared.
         public enum Nature: Sendable {
             /// The interface appears to be new (no similar interfaces previously existed, based on address family, address, netmask, etc).
             case added
