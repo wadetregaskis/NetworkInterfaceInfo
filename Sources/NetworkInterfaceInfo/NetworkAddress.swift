@@ -10,6 +10,7 @@ import Foundation
 ///
 /// This structure is pretty lightweight - the address data is stored in an efficient binary form - and standalone (so you can keep copies of these addresses around as along as you like, without incurring any additional memory cost, unlike for ``NetworkInterface``).
 public struct NetworkAddress: Sendable {
+    @usableFromInline
     internal let rawAddress: [UInt8]
 
 #if canImport(Darwin)
@@ -21,6 +22,7 @@ public struct NetworkAddress: Sendable {
     ///     In principle this is never necessary, but in practice Apple's OS libraries have multiple bugs (in macOS 13.3.1 at least) where that inline size information is wrong.
     ///
     ///     Nonetheless, be very careful about overriding the inline size information via this parameter, as a `realSize` that is actually wrong can cause data corruption or crashes.  Unless you know very clearly otherwise, leave this parameter unspecified (or nil).
+    @usableFromInline
     init(addr: UnsafePointer<sockaddr>, realSize: Int? = nil) {
         let size = realSize ?? Int(addr.pointee.sa_len)
 
@@ -52,6 +54,7 @@ public struct NetworkAddress: Sendable {
     ///     If this is not supplied it will be deduced - iff possible - from the address family specified in `addr`.  Note that this deduction might fail to produce an answer, which is why this initialiser can fail and return nil instead.  Currently only AF_UNIX, AF_INET, and AF_INET6 address families are supported in this manner.
     ///
     ///     Be very careful about overriding the inline size information via this parameter, as a `realSize` that is actually wrong can cause data corruption or crashes.  Unless you know very clearly otherwise, leave this parameter unspecified (or nil).
+    @usableFromInline
     init?(addr: UnsafePointer<sockaddr>, realSize: Int? = nil) {
         guard let size = realSize ?? NetworkAddress.deduceSize(addr) else {
             return nil
@@ -171,6 +174,7 @@ public struct NetworkAddress: Sendable {
     /// The 'family' of the address; what kind of network it applies to.
     ///
     /// The most common address families are ``AddressFamily/unix``, ``AddressFamily/inet``, and ``AddressFamily/inet6``.  There are convenience properties for those three common cases, ``isUnixLocal``, ``isIPv4``, and ``isIPv6`` respectively.
+    @inlinable
     public var family: AddressFamily {
         rawAddress.withUnsafeBufferPointer { rawBuffer in
             rawBuffer.withMemoryRebound(to: sockaddr.self) { sockaddrBuffer in
@@ -180,16 +184,22 @@ public struct NetworkAddress: Sendable {
     }
 
     /// Indicates whether this address is a "Unix" or "local" address, meaning it is only usable for addressing & communication between processes on the same host.
+    @inlinable
+    @inline(__always)
     public var isUnixLocal: Bool {
         .unix == family
     }
 
     /// Indicates whether this address is an IPv4 address.
+    @inlinable
+    @inline(__always)
     public var isIPv4: Bool {
         .inet == family
     }
 
     /// Indicates whether this address is an IPv6 address.
+    @inlinable
+    @inline(__always)
     public var isIPv6: Bool {
         .inet6 == family
     }
@@ -206,6 +216,7 @@ public struct NetworkAddress: Sendable {
 extension NetworkAddress: Equatable, Hashable {}
 
 extension NetworkAddress: CustomStringConvertible {
+    @usableFromInline
     internal static func ntop(family: sa_family_t, addr: UnsafeRawPointer, maximumSize: Int) -> String {
         return String(unsafeUninitializedCapacity: maximumSize) { buffer in
             var actualLength = -1

@@ -209,6 +209,8 @@ extension NetworkInterface {
     /// The contents are fetched anew every time this property is accessed.  For efficiency and to get self-consistent numbers you should save the value into a local constant each time you use it (if you're using more than one field from within it).
     ///
     /// Note that this is tied to the underlying hardware interface, so you will get identical values (notwithstanding the effects of different access timing) across all ``NetworkInterface`` instances that involve the same hardware interface.
+    @inlinable
+    @inline(__always)
     public var metrics: Metrics {
         get throws {
             try Metrics(interface: name)
@@ -217,6 +219,7 @@ extension NetworkInterface {
 }
 
 extension NetworkInterface.Metrics.Counters: CustomDebugStringConvertible {
+    @inlinable // More for optimisation opportunities (re. eliminating redundant calls) than any expectation of actually being inlined - the string interpolation is non-trivial and results in significant machine code.
     public var debugDescription: String {
         "Counters(bytes: \(bytes), packets: \(packets), packetsViaMulticast: \(packetsViaMulticast), errors: \(errors), queueDrops: \(queueDrops), timing: \(timing), quota: \(quota))"
     }

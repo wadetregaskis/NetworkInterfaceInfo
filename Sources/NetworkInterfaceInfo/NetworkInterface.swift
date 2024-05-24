@@ -19,17 +19,22 @@ import FoundationExtensions
 /// Dictionary(grouping: NetworkInterface.all, by: \.name)
 /// ```
 public struct NetworkInterface: @unchecked Sendable {
-    private let ifaddr: UnsafeMutablePointer<ifaddrs>
+    @usableFromInline
+    internal let ifaddr: UnsafeMutablePointer<ifaddrs>
+
     private let lifehook: Lifehook
     
     /// The name of the logical network interface, which may be a physical network interface (e.g. en0 representing an ethernet or wifi interface) or a virtual network interface (e.g. lo0 representing a network purely for communication within the local host).
     ///
     /// You may encounter multiple `NetworkInterface` instances with the same ``name`` when enumerating all the available interfaces (e.g. with ``all``.  Each will have a different ``address``, however.
+    @inlinable
+    @inline(__always)
     public var name: String {
         String(cString: ifaddr.pointee.ifa_name)
     }
     
     /// A network address of the host on this interface.  e.g. 127.0.0.1 or ::1 on lo0, or 192.168.0.7 on a home network.
+    @inlinable
     public var address: NetworkAddress? {
         guard let addr = ifaddr.pointee.ifa_addr else { return nil }
         return NetworkAddress(addr: addr)
@@ -38,6 +43,7 @@ public struct NetworkInterface: @unchecked Sendable {
     /// The network mask that goes along with ``address`` where applicable (e.g. for IPv4 and IPv6 addresses, but not link-layer addresses).
     ///
     /// Not always present, even where it does logically apply - typically that implies the interface in question is not actually active (contrary to what ``up`` or ``running`` might suggest).
+    @inlinable
     public var netmask: NetworkAddress? {
         guard let mask = ifaddr.pointee.ifa_netmask else { return nil }
         
@@ -52,6 +58,7 @@ public struct NetworkInterface: @unchecked Sendable {
     }
     
     /// The broadcast address for the network, where applicable (mainly just IPv4 networks).  Traffic sent to this address is nominally received by all devices on the network (but only the immediate network - broadcast traffic is not generally routed across network boundaries).
+    @inlinable
     public var broadcastAddress: NetworkAddress? {
         guard flags.contains(.broadcastAvailable) else { return nil }
         
@@ -84,6 +91,7 @@ public struct NetworkInterface: @unchecked Sendable {
     }
     
     /// The address of the other side of a point-to-point link.  Only applies to point-to-point links (as per ``pointToPoint``.
+    @inlinable
     public var destinationAddress: NetworkAddress? {
         guard flags.contains(.pointToPoint) else { return nil }
 
@@ -119,6 +127,8 @@ public struct NetworkInterface: @unchecked Sendable {
     }
 
     /// Flags for the interface, as an `OptionSet`.  You can also use the boolean convenience properties, e.g. ``up``, ``loopback``, etc, if you prefer.
+    @inlinable
+    @inline(__always)
     public var flags: Flags {
         Flags(rawValue: ifaddr.pointee.ifa_flags)
     }
@@ -130,6 +140,8 @@ public struct NetworkInterface: @unchecked Sendable {
         public let rawValue: UInt32
         
         // Only defined explicitly because of a bug in Swift (https://github.com/apple/swift/issues/58521).
+        @inlinable
+        @inline(__always)
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
         }
@@ -163,34 +175,140 @@ public struct NetworkInterface: @unchecked Sendable {
         public static let supportsMulticast: NetworkInterface.Flags = Flags(rawValue: UInt32(IFF_MULTICAST))
     }
     
-    public var up: Bool { flags.contains(.up) }
-    public var broadcastAvailable: Bool { flags.contains(.broadcastAvailable) }
-    public var debug: Bool { flags.contains(.debug) }
-    public var loopback: Bool { flags.contains(.loopback) }
-    public var pointToPoint: Bool { flags.contains(.pointToPoint) }
-    public var noTrailers: Bool { flags.contains(.noTrailers) }
-    public var running: Bool { flags.contains(.running) }
-    public var noARP: Bool { flags.contains(.noARP) }
-    public var promiscuous: Bool { flags.contains(.promiscuous) }
-    public var receivesAllMulticastPackets: Bool { flags.contains(.receivesAllMulticastPackets) }
+    @inlinable
+    @inline(__always)
+    public var up: Bool {
+        flags.contains(.up)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var broadcastAvailable: Bool {
+        flags.contains(.broadcastAvailable)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var debug: Bool {
+        flags.contains(.debug)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var loopback: Bool {
+        flags.contains(.loopback)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var pointToPoint: Bool {
+        flags.contains(.pointToPoint)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var noTrailers: Bool {
+        flags.contains(.noTrailers)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var running: Bool {
+        flags.contains(.running)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var noARP: Bool {
+        flags.contains(.noARP)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var promiscuous: Bool {
+        flags.contains(.promiscuous)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var receivesAllMulticastPackets: Bool {
+        flags.contains(.receivesAllMulticastPackets)
+    }
 
 #if canImport(Darwin)
-    public var transmissionInProgress: Bool { flags.contains(.transmissionInProgress) }
-    public var simplex: Bool { flags.contains(.simplex) }
-    public var link0: Bool { flags.contains(.link0) }
-    public var link1: Bool { flags.contains(.link1) }
-    public var link2: Bool { flags.contains(.link2) }
-    public var usesAlternatePhysicalConnection: Bool { flags.contains(.usesAlternatePhysicalConnection) }
+    @inlinable
+    @inline(__always)
+    public var transmissionInProgress: Bool {
+        flags.contains(.transmissionInProgress)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var simplex: Bool {
+        flags.contains(.simplex)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var link0: Bool {
+        flags.contains(.link0)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var link1: Bool {
+        flags.contains(.link1)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var link2: Bool {
+        flags.contains(.link2)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var usesAlternatePhysicalConnection: Bool {
+        flags.contains(.usesAlternatePhysicalConnection)
+    }
 #else
-    public var master: Bool { flags.contains(.master) }
-    public var slave: Bool { flags.contains(.slave) }
-    public var portSelectionAvailable: Bool { flags.contains(.portSelectionAvailable) }
-    public var autoMediaSelection: Bool { flags.contains(.autoMediaSelection) }
-    public var `dynamic`: Bool { flags.contains(.`dynamic`) }
+    @inlinable
+    @inline(__always)
+    public var master: Bool {
+        flags.contains(.master)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var slave: Bool {
+        flags.contains(.slave)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var portSelectionAvailable: Bool {
+        flags.contains(.portSelectionAvailable)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var autoMediaSelection: Bool {
+        flags.contains(.autoMediaSelection)
+    }
+
+    @inlinable
+    @inline(__always)
+    public var `dynamic`: Bool {
+        flags.contains(.`dynamic`)
+    }
 #endif
 
-    public var supportsMulticast: Bool { flags.contains(.supportsMulticast) }
-    
+    @inlinable
+    @inline(__always)
+    public var supportsMulticast: Bool {
+        flags.contains(.supportsMulticast)
+    }
+
     /// Keeps the underlying data structures, as returned by getifaddrs, alive as long as any NetworkInterfaces are using them.
     private final class Lifehook: @unchecked Sendable {
         private let head: UnsafeMutablePointer<ifaddrs>
@@ -248,6 +366,7 @@ public struct NetworkInterface: @unchecked Sendable {
 }
 
 extension NetworkInterface: Equatable {
+    @inlinable
     public static func == (lhs: NetworkInterface, rhs: NetworkInterface) -> Bool {
         (lhs.address == rhs.address
          && lhs.netmask == rhs.netmask
@@ -258,6 +377,7 @@ extension NetworkInterface: Equatable {
 }
 
 extension NetworkInterface: Hashable {
+    @inlinable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(address)
         hasher.combine(netmask)
@@ -268,6 +388,7 @@ extension NetworkInterface: Hashable {
 }
 
 extension NetworkInterface: CustomStringConvertible {
+    @inlinable // More for optimisation opportunities (re. eliminating redundant calls) than any expectation of actually being inlined - the string interpolation is non-trivial and results in significant machine code.
     public var description: String {
         let address = address
         let netmask = netmask

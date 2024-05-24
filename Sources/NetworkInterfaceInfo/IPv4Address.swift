@@ -52,11 +52,15 @@ public struct IPv4Address: Sendable {
     public let address: UInt32
 
     /// - Parameter address: The address (in host byte order).
+    @inlinable
+    @inline(__always)
     public init(addressInHostOrder: UInt32) {
         self.address = addressInHostOrder
     }
 
     /// - Parameter address: The address (in network byte order).
+    @inlinable
+    @inline(__always)
     public init(addressInNetworkOrder: UInt32) {
         self.address = UInt32(bigEndian: addressInNetworkOrder)
     }
@@ -67,6 +71,7 @@ public struct IPv4Address: Sendable {
     ///     This initialiser does not resolve hostnames or aliases - `string` may only be an IP address.
     ///
     ///     If the given string cannot be interpreted as an IP address, initialisation fails and nil is returned.
+    @inlinable
     public init?(from string: String) {
         var result = in_addr()
 
@@ -78,61 +83,84 @@ public struct IPv4Address: Sendable {
     }
 
     /// Indicates whether this (IPv4) address is the loopback address (127.0.0.1).
+    @inlinable
+    @inline(__always)
     public var isLoopback: Bool {
         address == INADDR_LOOPBACK
     }
 
     /// Indicates whether this netmask is a class A network (255.0.0.0).
+    @inlinable
+    @inline(__always)
     public var isClassANetwork: Bool {
         address == IN_CLASSA_NET
     }
 
     /// Indicates whether this address is in a class A network.
+    @inlinable
+    @inline(__always)
     public var inClassANetwork: Bool {
         (address & 0x8000_0000) == 0
     }
 
     /// Indicates whether this netmask is a class B network (255.255.0.0)
+    @inlinable
+    @inline(__always)
     public var isClassBNetwork: Bool {
         address == IN_CLASSB_NET
     }
 
     /// Indicates whether this address is in a class B network.
+    @inlinable
+    @inline(__always)
     public var inClassBNetwork: Bool {
         (address & 0xC000_0000) == 0x8000_0000
     }
 
     /// Indicates whether this netmask is a class C network (255.255.255.0).
+    @inlinable
+    @inline(__always)
     public var isClassCNetwork: Bool {
         address == IN_CLASSC_NET
     }
 
     /// Indicates whether this address is in a class C network.
+    @inlinable
+    @inline(__always)
     public var inClassCNetwork: Bool {
         (address & 0xE000_0000) == 0xC000_0000
     }
 
     /// Indicates whether this netmask is a class D network (multicast).
+    @inlinable
+    @inline(__always)
     public var isClassDNetwork: Bool {
         address == IN_CLASSD_NET
     }
 
     /// Indicates whether this address is in a class D network (multicast).
+    @inlinable
+    @inline(__always)
     public var inClassDNetwork: Bool {
         (address & 0xF000_0000) == 0xE000_0000
     }
 
     /// Indicates whether this address is in a link local network (169.254.x.x).
+    @inlinable
+    @inline(__always)
     public var inLinkLocalNetwork: Bool {
         (address & IN_CLASSB_NET) == IN_LINKLOCALNETNUM
     }
 
     /// Indicates whether this address is in a loopback network (127.x.x.x).
+    @inlinable
+    @inline(__always)
     public var inLoopbackNetwork: Bool {
         (address & IN_CLASSA_NET) == 0x7f00_0000
     }
 
     /// Indicates whether this address is in a private network (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+    @inlinable
     public var inPrivateNetwork: Bool {
         return (address & IN_CLASSA_NET) == 0x0a00_0000 // 10.0.0.0/8
             || (address & 0xfff0_0000)  ==  0xac10_0000 // 172.16.0.0/12
@@ -140,132 +168,183 @@ public struct IPv4Address: Sendable {
     }
 
     /// Indicates whether this address is the unspecified broadcast group (224.0.0.0)
+    @inlinable
+    @inline(__always)
     public var isUnspecifiedMulticastGroup: Bool {
         address == INADDR_UNSPEC_GROUP
     }
 
     /// Indicates whether this address is the all hosts multicast group address (224.0.0.1).
+    @inlinable
+    @inline(__always)
     public var isAllHostsMulticastGroup: Bool {
         address == INADDR_ALLHOSTS_GROUP
     }
 
     /// Indicates whether this address is the all routers multicast group (224.0.0.2).
+    @inlinable
+    @inline(__always)
     public var isAllRoutersMulticastGroup: Bool {
         address == INADDR_ALLRTRS_GROUP
     }
 
     /// Indicates whether this address is the [DVMRP](https://en.wikipedia.org/wiki/Distance_Vector_Multicast_Routing_Protocol) multicast group (224.0.0.4).
+    @inlinable
+    @inline(__always)
     public var isDVMRPMulticastGroup: Bool {
         address == 0xe000_0004
     }
 
     /// Indicates whether this address is the [OSPF](https://en.wikipedia.org/wiki/Open_Shortest_Path_First) multicast group (224.0.0.5).
+    @inlinable
+    @inline(__always)
     public var isOSPFMulticastGroup: Bool {
         address == 0xe000_0005
     }
 
     /// Indicates whether this address is the [OSPF](https://en.wikipedia.org/wiki/Open_Shortest_Path_First) DR multicast group (224.0.0.5).
+    @inlinable
+    @inline(__always)
     public var isOSPFDRMulticastGroup: Bool {
         address == 0xe000_0006
     }
 
     /// Indicates whether this address is the [RIPv2](https://en.wikipedia.org/wiki/Routing_Information_Protocol) multicast group (224.0.0.9).
+    @inlinable
+    @inline(__always)
     public var isRIPv2MulticastGroup: Bool {
         address == 0xe000_0009
     }
 
     /// Indicates whether this address is the [EIGRP](https://en.wikipedia.org/wiki/Enhanced_Interior_Gateway_Routing_Protocol) multicast group (224.0.0.10).
+    @inlinable
+    @inline(__always)
     public var isEIGRPMulticastGroup: Bool {
         address == 0xe000_000a
     }
 
     /// Indicates whether this address is the [PIMv2](https://en.wikipedia.org/wiki/Protocol_Independent_Multicast) multicast group (224.0.0.13).
+    @inlinable
+    @inline(__always)
     public var isPIMv2MulticastGroup: Bool {
         address == 0xe000_000d
     }
 
     /// Indicates whether this address is the [VRRP](https://en.wikipedia.org/wiki/Virtual_Router_Redundancy_Protocol) multicast group (224.0.0.18).
+    @inlinable
+    @inline(__always)
     public var isVRRPMulticastGroup: Bool {
         address == 0xe000_0012
     }
 
     /// Indicates whether this address is the [CARP](https://en.wikipedia.org/wiki/Common_Address_Redundancy_Protocol) (Common Address Redundancy Protocol) multicast group (224.0.0.18).
+    @inlinable
+    @inline(__always)
     public var isCARPMulticastGroup: Bool {
         address == INADDR_CARP_GROUP
     }
 
     /// Indicates whether this address is the [IGMPv3](https://en.wikipedia.org/wiki/Internet_Group_Management_Protocol) multicast group (224.0.0.22).
+    @inlinable
+    @inline(__always)
     public var isIGMPv3MulticastGroup: Bool {
         address == INADDR_ALLRPTS_GROUP
     }
 
     /// Indicates whether this address is the [PTPv2](https://en.wikipedia.org/wiki/Precision_Time_Protocol) delay measurement multicast group (224.0.0.107).
+    @inlinable
+    @inline(__always)
     public var isPTPv2DelayMeasurementMulticastGroup: Bool {
         address == 0xe000_006b
     }
 
     /// Indicates whether this address is the [PTPv2](https://en.wikipedia.org/wiki/Precision_Time_Protocol) general messages multicast group (224.0.1.129).
+    @inlinable
+    @inline(__always)
     public var isPTPv2GeneralMessagesMulticastGroup: Bool {
         address == 0xe000_0181
     }
 
     /// Indicates whether this address is the [PfSync](https://en.wikipedia.org/wiki/Pfsync) multicast group (224.0.0.240).
+    @inlinable
+    @inline(__always)
     public var isPfsyncMulticastGroup: Bool {
         address == INADDR_PFSYNC_GROUP
     }
 
     /// Indicates whether this address is the multicast DNS ([mDNS](https://en.wikipedia.org/wiki/Multicast_DNS)) multicast group (224.0.0.251).
+    @inlinable
+    @inline(__always)
     public var ismDNSMulticastGroup: Bool {
         address == INADDR_ALLMDNS_GROUP
     }
 
     /// Indicates whether this address is the [LLMNR](https://en.wikipedia.org/wiki/Link-local_Multicast_Name_Resolution) multicast group (224.0.0.252).
+    @inlinable
+    @inline(__always)
     public var isLLMNRMulticastGroup: Bool {
         address == 0xe000_00fc
     }
 
     /// Indicates whether this address is the [Teredo](https://en.wikipedia.org/wiki/Teredo_tunneling) client discovery multicast group (224.0.0.253).
+    @inlinable
+    @inline(__always)
     public var isTeredoMulticastGroup: Bool {
         address == 0xe000_00fd
     }
 
     /// Indicates whether this address is the [NTP](https://en.wikipedia.org/wiki/Network_Time_Protocol) multicast group (224.0.1.1).
+    @inlinable
+    @inline(__always)
     public var isNTPMulticastGroup: Bool {
         address == 0xe000_0101
     }
 
     /// Indicates whether this address is the [SLPv1](https://en.wikipedia.org/wiki/Service_Location_Protocol) general multicast group (224.0.1.22).
+    @inlinable
+    @inline(__always)
     public var isSLPv1GeneralMulticastGroup: Bool {
         address == 0xe000_0116
     }
 
     /// Indicates whether this address is the [SLPv1](https://en.wikipedia.org/wiki/Service_Location_Protocol) directory agent multicast group (224.0.1.35).
+    @inlinable
+    @inline(__always)
     public var isSLPv1DirectoryAgentMulticastGroup: Bool {
         address == 0xe000_0123
     }
 
     /// Indicates whether this address is the [SLPv2](https://en.wikipedia.org/wiki/Service_Location_Protocol) multicast group (239.255.255.253).
+    @inlinable
+    @inline(__always)
     public var isSLPv2MulticastGroup: Bool {
         address == 0xefff_fffd // Someone had a sense of humour, and/or didn't believe in their protocol.
     }
 
     /// Indicates whether this address is the [SSDP](https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol) multicast group (239.255.255.250).
+    @inlinable
+    @inline(__always)
     public var isSSDPMulticastGroup: Bool {
         address == 0xefff_fffa
     }
 
     /// Indicates whether this address is in a multicast network (224.x.x.x).
+    @inlinable
+    @inline(__always)
     public var inMulticastGroup: Bool {
         (address & IN_CLASSD_NET) == INADDR_UNSPEC_GROUP
     }
 
     /// Indicates whether this address is in a local multicast group (224.0.0.x).
+    @inlinable
+    @inline(__always)
     public var inLocalMulticastGroup: Bool {
         (address & IN_CLASSC_NET) == INADDR_UNSPEC_GROUP
     }
 }
 
 extension IPv4Address: CustomStringConvertible {
+    @inlinable
     public var description: String {
         var networkOrderedAddress = in_addr(s_addr: address.bigEndian)
 

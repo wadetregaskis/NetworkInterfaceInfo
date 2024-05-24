@@ -32,6 +32,8 @@ public extension NetworkInterface {
             public static let destinationAddress = ModificationNature(rawValue: 1 << 3)
             public static let flags              = ModificationNature(rawValue: 1 << 4)
 
+            @inlinable
+            @inline(__always)
             public init(rawValue: Int8) {
                 self.rawValue = rawValue
             }
